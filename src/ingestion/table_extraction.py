@@ -156,6 +156,11 @@ def clean_table(df: pd.DataFrame, spec: TableSpec) -> pd.DataFrame:
             df = df.drop(columns=df.columns[0])
         if len(df.columns) > 7:
             df = df.drop(columns=df.columns[7])
+    elif spec.name == "hydro_generation":
+        if len(df.columns) > 0:
+            df = df.drop(columns=df.columns[0])
+        if len(df.columns) > 7:
+            df = df.drop(columns=df.columns[7])
     else:
         for drop_index in sorted(spec.drop_columns, reverse=True):
             if 0 <= drop_index < len(df.columns):
