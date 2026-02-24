@@ -51,6 +51,7 @@ flowchart LR
 5. Prediction Layer — generate load estimates for required horizons
 6. Evaluation Layer — compute performance metrics and visualizations
 
+
 ---
 
 ## Workflow Pipeline
@@ -205,34 +206,24 @@ These metrics provide a robust view of forecast accuracy and reliability.
 
 ## References
 
-Add links to datasets, papers, and documentation here. Example format:
+ [1] Research Paper Links :-
+ 
+    LINK 1- https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/ 
+    LINK 2- https://www.nature.com/articles/s41598-024-63262-x 
+    LINK 3- https://www.sciencedirect.com/science/article/pii/S0045790621004341
+    
 
+[2] Official Grid Portal :-
+
+    Northern Region - https://nrldc.in/
+    Western Region - https://wrldc.in/
+    Southern Region - https://www.srldc.in/
+    Eastern Region - https://erldc.in/
+
+[3] GitHub Link :-  
+
+    https://github.com/d-rorschach/Electric_load_forecasting
+    https://github.com/HarshMishra-Git/Energy_Forecasting_load_Balancing
+    https://github.com/venkatsai2027/load-forecasting-for-smart-grid
+    
 ```
-[1] Research Paper Title — Link
-[2] Dataset Source — Link
-[3] Official Grid Portal — Link
-[4] TensorFlow Documentation — Link
-```
-
----
-
-## Author
-
-Your Name
-Data Science & AI
-
----
-
-## Optional: Key Highlights
-
-- Real smart grid dataset
-- Deep learning prediction model
-- Multi-source data integration
-- Industry-level system architecture
-- Forecast correction approach
-
----
-
-## Final Note
-
-This README follows professional ML repository standards and research project documentation style to present a clear, technical, and production-oriented summary of the project.
