@@ -64,8 +64,8 @@ def extract_nrldc_data(file_path: str) -> pd.DataFrame:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    pattern = os.path.join(DOWNLOAD_DIR, "**", "**", "*.xlsx")
-    all_files = sorted(glob.glob(pattern))
+    pattern = os.path.join(DOWNLOAD_DIR, "**", "*.xlsx")
+    all_files = sorted(glob.glob(pattern, recursive=True))
     total = len(all_files)
 
     if not total:
@@ -104,6 +104,10 @@ def main():
         .reset_index(drop=True)
     )
 
+    pre_dedup_rows = len(final_df)
+    final_df = final_df.drop_duplicates(subset=["date", "timestamp"], keep="last")
+    removed_duplicates = pre_dedup_rows - len(final_df)
+
     final_df.to_csv(OUTPUT_FILE, index=False)
 
     succeeded = total - skipped
@@ -113,6 +117,8 @@ def main():
     print(f"  Processed : {succeeded}/{total} file(s)"
           + (f"  ({skipped} skipped)" if skipped else ""))
     print(f"  Rows      : {len(final_df):,}")
+    if removed_duplicates:
+        print(f"  De-duped  : removed {removed_duplicates:,} duplicate row(s)")
     print(f"  Date span : {date_range}")
     print(f"  Output    : data/extracted/nrldc_extracted.csv")
     print(f"{'─' * 50}")
