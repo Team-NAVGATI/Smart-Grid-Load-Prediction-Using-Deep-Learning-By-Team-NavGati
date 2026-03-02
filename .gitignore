@@ -159,5 +159,4 @@ Thumbs.db
 temp/
 cache/
 
-# data
-data/raw/
+data/raw
