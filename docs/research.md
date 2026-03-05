@@ -100,6 +100,26 @@ These features capture temporal behavior, recent trends, and forecast patterns t
 
 ---
 
+## Model Research
+
+As part of the research phase, multiple machine learning and deep learning models were evaluated to determine the most suitable approach for electricity load forecasting.
+
+The models studied include:
+
+• **Linear Regression** – a simple statistical model used as a baseline for comparison.
+
+• **GRU (Gated Recurrent Unit)** – a recurrent neural network designed for sequential data with fewer parameters than LSTM.
+
+• **LSTM (Long Short-Term Memory)** – a deep learning model capable of learning long-term temporal dependencies in time-series data.
+
+Based on literature studies and practical forecasting requirements, LSTM was selected as the primary model due to its strong ability to capture long-term demand patterns in electricity load data.
+
+A detailed comparison of these models is documented in:
+
+`research_model.md`
+
+---
+
 ## Model Architecture
 
 A representative deep learning architecture used in experiments:
@@ -132,44 +152,6 @@ Baseline models used for comparison include Random Forest regressors and simpler
 
 ---
 
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/smart-grid-load-prediction.git
-cd smart-grid-load-prediction
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Usage
-
-Run preprocessing:
-
-```bash
-python preprocess.py
-```
-
-Train model:
-
-```bash
-python train.py
-```
-
-Run prediction / inference:
-
-```bash
-python predict.py
-```
-
----
 
 ## Results and Visualizations
 
@@ -208,9 +190,9 @@ These metrics provide a robust view of forecast accuracy and reliability.
 
  [1] Research Paper Links :-
  
-    LINK 1- https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/ 
-    LINK 2- https://www.nature.com/articles/s41598-024-63262-x 
-    LINK 3- https://www.sciencedirect.com/science/article/pii/S0045790621004341
+1. Time Series Prediction with LSTM – https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+2. Deep learning-driven hybrid model for short-term load forecasting – https://www.nature.com/articles/s41598-024-63262-x
+3. Electricity load forecasting using neural networks – https://www.sciencedirect.com/science/article/pii/S0045790621004341
     
 
 [2] Official Grid Portal :-
