@@ -22,6 +22,26 @@ import os
 import glob
 import time
 from datetime import datetime
+import logging
+
+# Logging setup
+LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "logs"))
+os.makedirs(LOGS_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOGS_DIR, "scrap_excel.log")
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+def log_execution_details(start_time, end_time, num_files, metadata=None):
+    duration = (end_time - start_time).total_seconds()
+    logging.info(f"Execution started at: {start_time}")
+    logging.info(f"Execution ended at: {end_time}")
+    logging.info(f"Total duration (seconds): {duration}")
+    logging.info(f"Number of files processed: {num_files}")
+    if metadata:
+        logging.info(f"Metadata: {metadata}")
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -330,6 +350,11 @@ def open_year(driver, wait, year_fid: str) -> bool:
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+_scrape_start_time = datetime.now()
+logging.info("=" * 50)
+logging.info("Scraping execution started")
+_total_files_downloaded = 0
+
 driver = get_driver(BASE_DOWNLOAD_DIR)
 wait = WebDriverWait(driver, 30)
 
@@ -480,6 +505,7 @@ try:
                 except Exception:
                     break  # no more pages
 
+            _total_files_downloaded += total_downloaded
             summary = f"{total_downloaded} new"
             if total_skipped > 0:
                 summary += f", {total_skipped} skipped"
@@ -492,3 +518,9 @@ finally:
 print("\n" + "=" * 72)
 print("SCRAPING COMPLETE".center(72))
 print("=" * 72 + "\n")
+
+_scrape_end_time = datetime.now()
+log_execution_details(_scrape_start_time, _scrape_end_time, _total_files_downloaded, {
+    "status": "complete",
+    "base_download_dir": BASE_DOWNLOAD_DIR,
+})

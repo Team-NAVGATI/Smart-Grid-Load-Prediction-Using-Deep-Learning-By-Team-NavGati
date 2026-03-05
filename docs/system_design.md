@@ -80,9 +80,25 @@ flowchart TD
 
 ---
 
-## 7. Modeling Strategy
+## 7. Logging and Monitoring
 
-### 7.1 Baseline Models (Mandatory)
+All major scripts (data ingestion, scraping, merging) use Python's logging module to record key execution details:
+- Start and end time of execution
+- Total execution duration
+- Number of files processed
+- Status and metadata
+
+**Log files are stored in the `logs/` directory at the project root:**
+- `logs/scrap_excel.log` for scraping operations
+- `logs/data_merger.log` for data merging
+
+This enables traceability, debugging, and monitoring of the ingestion workflow. Check these log files for troubleshooting and audit purposes.
+
+---
+
+## 8. Modeling Strategy
+
+### 8.1 Baseline Models (Mandatory)
 
 * Naive persistence model
 * Moving average
@@ -91,7 +107,7 @@ flowchart TD
 
 Purpose: establish minimum acceptable performance and sanity check data quality.
 
-### 7.2 Deep Learning Models
+### 8.2 Deep Learning Models
 
 * **LSTM**: captures sequential dependencies in load patterns
 * **GRU**: computationally efficient alternative
@@ -99,9 +115,9 @@ Purpose: establish minimum acceptable performance and sanity check data quality.
 
 ---
 
-## 8. Training & Evaluation
+## 9. Training & Evaluation
 
-### 8.1 Data Splitting
+### 9.1 Data Splitting
 
 * Time-based split only
 
@@ -109,7 +125,7 @@ Purpose: establish minimum acceptable performance and sanity check data quality.
   * Validation: recent past
   * Test: most recent unseen data
 
-### 8.2 Evaluation Metrics
+### 9.2 Evaluation Metrics
 
 | Metric          | Justification                |
 | --------------- | ---------------------------- |
@@ -120,7 +136,7 @@ Purpose: establish minimum acceptable performance and sanity check data quality.
 
 ---
 
-## 9. Sustainability & Grid Impact Analysis
+## 10. Sustainability & Grid Impact Analysis
 
 The system evaluates forecast improvements specifically during peak demand periods. Reduced prediction error enables:
 
@@ -134,7 +150,7 @@ Example analysis:
 
 ---
 
-## 10. Optimization & Decision Support Layer
+## 11. Optimization & Decision Support Layer
 
 A rule-based simulation layer uses predicted load to:
 
@@ -146,14 +162,14 @@ This layer demonstrates how ML outputs translate into operational grid decisions
 
 ---
 
-## 11. Deployment Strategy
+## 12. Deployment Strategy
 
-### 11.1 Inference Service
+### 12.1 Inference Service
 
 * REST API using **FastAPI**
 * Endpoint: `/predict-load`
 
-### 11.2 Model Registry
+### 12.2 Model Registry
 
 * Versioned models with metadata:
 
@@ -161,7 +177,7 @@ This layer demonstrates how ML outputs translate into operational grid decisions
   * Metrics
   * Feature set
 
-### 11.3 Monitoring
+### 12.3 Monitoring
 
 * Prediction error tracking
 * Data drift detection
@@ -169,7 +185,7 @@ This layer demonstrates how ML outputs translate into operational grid decisions
 
 ---
 
-## 12. Project Deliverables
+## 13. Project Deliverables
 
 * End-to-end ML pipeline codebase
 * Trained forecasting models
@@ -179,7 +195,7 @@ This layer demonstrates how ML outputs translate into operational grid decisions
 
 ---
 
-## 13. Repository File Name Recommendation
+## 14. Repository File Name Recommendation
 
 **Filename:** `SMART_GRID_LOAD_FORECASTING_SYSTEM_DESIGN.md`
 
@@ -187,6 +203,6 @@ This document serves as the foundational design and system specification for the
 
 ---
 
-## 14. Conclusion
+## 15. Conclusion
 
 This project demonstrates how deep learning, when combined with strong data engineering and system design principles, can solve real-world energy challenges. The resulting system aligns with industry-grade ML practices and highlights the role of AI in enabling stable, efficient, and sustainable power grids.

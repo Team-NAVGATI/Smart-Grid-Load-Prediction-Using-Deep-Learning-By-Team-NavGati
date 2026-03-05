@@ -13,6 +13,26 @@ import glob
 import re
 import pandas as pd
 from datetime import datetime
+import logging
+
+# Logging setup
+LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "logs"))
+os.makedirs(LOGS_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOGS_DIR, "data_merger.log")
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+def log_execution_details(start_time, end_time, num_files, metadata=None):
+    duration = (end_time - start_time).total_seconds()
+    logging.info(f"Execution started at: {start_time}")
+    logging.info(f"Execution ended at: {end_time}")
+    logging.info(f"Total duration (seconds): {duration}")
+    logging.info(f"Number of files processed: {num_files}")
+    if metadata:
+        logging.info(f"Metadata: {metadata}")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT_DIR     = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -64,6 +84,10 @@ def extract_nrldc_data(file_path: str) -> pd.DataFrame:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
+    start_time = datetime.now()
+    logging.info("=" * 50)
+    logging.info("Data merger execution started")
+
     pattern = os.path.join(DOWNLOAD_DIR, "**", "*.xlsx")
     all_files = sorted(glob.glob(pattern, recursive=True))
     total = len(all_files)
@@ -115,13 +139,23 @@ def main():
 
     print(f"\n{'─' * 50}")
     print(f"  Processed : {succeeded}/{total} file(s)"
-          + (f"  ({skipped} skipped)" if skipped else ""))
+        + (f"  ({skipped} skipped)" if skipped else ""))
     print(f"  Rows      : {len(final_df):,}")
     if removed_duplicates:
         print(f"  De-duped  : removed {removed_duplicates:,} duplicate row(s)")
     print(f"  Date span : {date_range}")
     print(f"  Output    : data/extracted/nrldc_extracted.csv")
     print(f"{'─' * 50}")
+
+    end_time = datetime.now()
+    log_execution_details(start_time, end_time, succeeded, {
+        "status": "success",
+        "total_files": total,
+        "skipped": skipped,
+        "rows": len(final_df),
+        "duplicates_removed": removed_duplicates,
+        "date_range": date_range,
+    })
 
 
 if __name__ == "__main__":
