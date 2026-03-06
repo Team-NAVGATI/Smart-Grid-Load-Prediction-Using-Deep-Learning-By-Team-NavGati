@@ -159,4 +159,5 @@ Thumbs.db
 temp/
 cache/
 
-data/raw
+data
+*.csv
