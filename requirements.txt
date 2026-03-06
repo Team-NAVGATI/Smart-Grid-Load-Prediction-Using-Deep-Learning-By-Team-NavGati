@@ -1,4 +1,4 @@
 pandas
 camelot-py[cv]
-selenium 
+selenium
 webdriver-manager

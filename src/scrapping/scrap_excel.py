@@ -31,17 +31,8 @@ LOG_FILE = os.path.join(LOGS_DIR, "scrap_excel.log")
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
+    format="%(levelname)s %(message)s"
 )
-
-def log_execution_details(start_time, end_time, num_files, metadata=None):
-    duration = (end_time - start_time).total_seconds()
-    logging.info(f"Execution started at: {start_time}")
-    logging.info(f"Execution ended at: {end_time}")
-    logging.info(f"Total duration (seconds): {duration}")
-    logging.info(f"Number of files processed: {num_files}")
-    if metadata:
-        logging.info(f"Metadata: {metadata}")
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -95,7 +86,7 @@ def get_driver(download_dir: str) -> webdriver.Chrome:
         options=options,
     )
     driver.execute_cdp_cmd("Page.setDownloadBehavior",
-                           {"behavior": "allow", "downloadPath": abs_dir})
+                        {"behavior": "allow", "downloadPath": abs_dir})
     return driver
 
 
@@ -103,7 +94,7 @@ def set_download_dir(driver: webdriver.Chrome, directory: str):
     abs_dir = os.path.abspath(directory)
     os.makedirs(abs_dir, exist_ok=True)
     driver.execute_cdp_cmd("Page.setDownloadBehavior",
-                           {"behavior": "allow", "downloadPath": abs_dir})
+                        {"behavior": "allow", "downloadPath": abs_dir})
 
 
 def wait_for_downloads(directory: str, timeout: int = 90):
@@ -111,7 +102,7 @@ def wait_for_downloads(directory: str, timeout: int = 90):
     deadline = time.time() + timeout
     while time.time() < deadline:
         pending = (glob.glob(os.path.join(directory, "*.crdownload")) +
-                   glob.glob(os.path.join(directory, "*.tmp")))
+                glob.glob(os.path.join(directory, "*.tmp")))
         if not pending:
             return True
         time.sleep(1)
@@ -128,7 +119,7 @@ def get_existing_files(directory: str) -> set:
     """Get set of filenames that already exist in directory."""
     try:
         return set(f for f in os.listdir(directory)
-                   if os.path.isfile(os.path.join(directory, f)))
+                if os.path.isfile(os.path.join(directory, f)))
     except Exception:
         return set()
 
@@ -351,9 +342,12 @@ def open_year(driver, wait, year_fid: str) -> bool:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 _scrape_start_time = datetime.now()
+logging.info("" )
 logging.info("=" * 50)
 logging.info("Scraping execution started")
 _total_files_downloaded = 0
+_total_files_checked = 0
+_total_files_skipped = 0
 
 driver = get_driver(BASE_DOWNLOAD_DIR)
 wait = WebDriverWait(driver, 30)
@@ -506,6 +500,8 @@ try:
                     break  # no more pages
 
             _total_files_downloaded += total_downloaded
+            _total_files_checked += total_downloaded + total_skipped
+            _total_files_skipped += total_skipped
             summary = f"{total_downloaded} new"
             if total_skipped > 0:
                 summary += f", {total_skipped} skipped"
@@ -520,7 +516,15 @@ print("SCRAPING COMPLETE".center(72))
 print("=" * 72 + "\n")
 
 _scrape_end_time = datetime.now()
-log_execution_details(_scrape_start_time, _scrape_end_time, _total_files_downloaded, {
-    "status": "complete",
-    "base_download_dir": BASE_DOWNLOAD_DIR,
-})
+_duration = int((_scrape_end_time - _scrape_start_time).total_seconds())
+
+logging.info("" )
+logging.info("Pipeline completed successfully")
+logging.info(f"Duration: {_duration} seconds")
+logging.info("" )
+logging.info("Scraping completed")
+logging.info(f"Files checked: {_total_files_checked}")
+logging.info(f"New files downloaded: {_total_files_downloaded}")
+logging.info(f"Skipped existing files: {_total_files_skipped}")
+logging.info(f"Duration: {_duration} seconds")
+logging.info("=" * 50)
