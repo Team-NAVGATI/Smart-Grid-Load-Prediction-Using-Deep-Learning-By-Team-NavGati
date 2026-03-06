@@ -21,6 +21,8 @@ Strategy per year:
 import os
 import glob
 import time
+import calendar
+import sys
 from datetime import datetime
 import logging
 
@@ -28,11 +30,21 @@ import logging
 LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "logs"))
 os.makedirs(LOGS_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOGS_DIR, "scrap_excel.log")
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(levelname)s %(message)s"
-)
+
+logger = logging.getLogger("scrap_excel")
+logger.setLevel(logging.INFO)
+logger.handlers.clear()
+logger.propagate = False
+
+_file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+_file_handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+logger.addHandler(_file_handler)
+
+# Keep this log file focused on scraper summary, not library internals.
+for noisy_logger in ("WDM", "webdriver_manager", "urllib3"):
+    _lib_logger = logging.getLogger(noisy_logger)
+    _lib_logger.setLevel(logging.WARNING)
+    _lib_logger.propagate = False
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -342,17 +354,23 @@ def open_year(driver, wait, year_fid: str) -> bool:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 _scrape_start_time = datetime.now()
-logging.info("" )
-logging.info("=" * 50)
-logging.info("Scraping execution started")
 _total_files_downloaded = 0
 _total_files_checked = 0
 _total_files_skipped = 0
+_processed_year_months: set[tuple[int, int]] = set()
+_run_failed = False
+_error_message = ""
 
-driver = get_driver(BASE_DOWNLOAD_DIR)
-wait = WebDriverWait(driver, 30)
+logger.info("=" * 50)
+logger.info("Scraping execution started")
+
+driver = None
+wait = None
 
 try:
+    driver = get_driver(BASE_DOWNLOAD_DIR)
+    wait = WebDriverWait(driver, 30)
+
     # ── Step 1: Collect year folder IDs from initial page load ────────────────
     driver.get(BASE_URL)
     time.sleep(4)
@@ -404,6 +422,12 @@ try:
         filtered = [(n, f) for n, f in month_data
                     if not month_is_future(year_int, n)]
         skipped  = [n for n, _ in month_data if month_is_future(year_int, n)]
+
+        for month_name, _ in filtered:
+            month_num = MONTH_MAP.get(month_name.lower()[:3])
+            if month_num:
+                _processed_year_months.add((year_int, month_num))
+
         if skipped:
             print(f"  Skipping future months : {', '.join(skipped)}")
         print(f"  Processing months      : {', '.join([m[0] for m in filtered])}")
@@ -508,8 +532,14 @@ try:
             relative_dir = os.path.relpath(month_dir, BASE_DOWNLOAD_DIR)
             print(f"\n    Result: {summary} file(s) | {relative_dir}")
 
+except Exception as exc:
+    _run_failed = True
+    _error_message = str(exc)
+    logger.exception("Scraping failed")
+
 finally:
-    driver.quit()
+    if driver is not None:
+        driver.quit()
 
 print("\n" + "=" * 72)
 print("SCRAPING COMPLETE".center(72))
@@ -518,13 +548,30 @@ print("=" * 72 + "\n")
 _scrape_end_time = datetime.now()
 _duration = int((_scrape_end_time - _scrape_start_time).total_seconds())
 
-logging.info("" )
-logging.info("Pipeline completed successfully")
-logging.info(f"Duration: {_duration} seconds")
-logging.info("" )
-logging.info("Scraping completed")
-logging.info(f"Files checked: {_total_files_checked}")
-logging.info(f"New files downloaded: {_total_files_downloaded}")
-logging.info(f"Skipped existing files: {_total_files_skipped}")
-logging.info(f"Duration: {_duration} seconds")
-logging.info("=" * 50)
+if _processed_year_months:
+    start_year, start_month = min(_processed_year_months)
+    end_year, end_month = max(_processed_year_months)
+    target_start = f"{start_year:04d}-{start_month:02d}-01"
+    end_day = calendar.monthrange(end_year, end_month)[1]
+    target_end = f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
+else:
+    target_start = "N/A"
+    target_end = "N/A"
+
+logger.info("=" * 50)
+logger.info(f"Target range: {target_start} -> {target_end}")
+if _run_failed:
+    logger.info("Pipeline failed")
+    logger.info(f"Error: {_error_message}")
+else:
+    logger.info("Pipeline completed successfully")
+logger.info(f"Duration: {_duration} seconds")
+logger.info("Scraping completed")
+logger.info(f"Files checked: {_total_files_checked}")
+logger.info(f"New files downloaded: {_total_files_downloaded}")
+logger.info(f"Skipped existing files: {_total_files_skipped}")
+logger.info(f"Duration: {_duration} seconds")
+logger.info("=" * 50)
+
+if _run_failed:
+    sys.exit(1)
