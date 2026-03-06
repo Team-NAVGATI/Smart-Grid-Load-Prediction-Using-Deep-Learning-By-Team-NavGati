@@ -160,4 +160,4 @@ temp/
 cache/
 
 data
-*csv
+*.csv
