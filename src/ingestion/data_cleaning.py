@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def load_dataset(file_path):
-    df = pd.read_csv(file_path)
+    df = pd.read_parquet(file_path, engine='pyarrow')
 
     df['datetime'] = pd.to_datetime(
         df['date'].astype(str) + ' ' + df['timestamp'].str.split(' - ').str[0]
@@ -47,7 +47,7 @@ def remove_noise(df):
 if __name__ == "__main__":
     print("=====NRLDC data cleaning started=====\n")
 
-    file_path = PROJECT_ROOT / 'data' / 'extracted' / 'nrldc_extracted.csv'
+    file_path = PROJECT_ROOT / 'data' / 'extracted' / 'nrldc_extracted.parquet'
 
     df = load_dataset(file_path)
     print(f"[INFO] Rows: {len(df)} | Range: {df.index.min()} -> {df.index.max()}")
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     mkdir_p = PROJECT_ROOT / 'data' / 'cleaned'
     os.makedirs(mkdir_p, exist_ok=True)
 
-    output_path = PROJECT_ROOT / 'data' / 'cleaned' / 'nrldc_cleaned.csv'
-    df_cleaned.to_csv(output_path)
+    output_path = PROJECT_ROOT / 'data' / 'cleaned' / 'nrldc_cleaned.parquet'
+    df_cleaned.to_parquet(output_path, engine='pyarrow', index=False)
 
-    print(f"[INFO] Saved: data/cleaned/nrldc_cleaned.csv | Final rows: {len(df_cleaned)}")
+    print(f"[INFO] Saved: data/cleaned/nrldc_cleaned.parquet | Final rows: {len(df_cleaned)}")
     print("\n=====Data cleaning completed=====")
