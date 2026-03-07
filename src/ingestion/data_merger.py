@@ -29,7 +29,7 @@ logging.basicConfig(
 ROOT_DIR     = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DOWNLOAD_DIR = os.path.join(ROOT_DIR, "data", "raw")
 OUTPUT_DIR   = os.path.join(ROOT_DIR, "data", "extracted")
-OUTPUT_FILE  = os.path.join(OUTPUT_DIR, "nrldc_extracted.csv")
+OUTPUT_FILE  = os.path.join(OUTPUT_DIR, "nrldc_extracted.parquet")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -125,7 +125,8 @@ def main():
     final_df = final_df.drop_duplicates(subset=["date", "timestamp"], keep="last")
     removed_duplicates = pre_dedup_rows - len(final_df)
 
-    final_df.to_csv(OUTPUT_FILE, index=False)
+    # final_df.to_csv(OUTPUT_FILE, index=False)
+    final_df.to_parquet(OUTPUT_FILE, index=False, engine="pyarrow")
 
     succeeded = total - skipped
     date_range = f"{final_df['date'].min().date()}  →  {final_df['date'].max().date()}"
@@ -137,7 +138,7 @@ def main():
     if removed_duplicates:
         print(f"  De-duped  : removed {removed_duplicates:,} duplicate row(s)")
     print(f"  Date span : {date_range}")
-    print(f"  Output    : data/extracted/nrldc_extracted.csv")
+    print(f"  Output    : data/extracted/nrldc_extracted.parquet")
     print(f"{'─' * 50}")
 
     end_time = datetime.now()

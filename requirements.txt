@@ -2,3 +2,5 @@ pandas
 camelot-py[cv]
 selenium
 webdriver-manager
+fastparquet
+pyarrow
