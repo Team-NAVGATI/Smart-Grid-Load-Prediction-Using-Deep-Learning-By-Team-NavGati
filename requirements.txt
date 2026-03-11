@@ -4,3 +4,8 @@ selenium
 webdriver-manager
 fastparquet
 pyarrow
+joblib
+xgboost
+scikit-learn
+flask 
+flask-cors
