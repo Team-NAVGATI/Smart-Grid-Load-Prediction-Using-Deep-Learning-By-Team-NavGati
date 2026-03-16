@@ -7,7 +7,14 @@ Reads : data/cleaned/nrldc_cleaned.parquet
 Outputs:
   data/model/xgboost_model.joblib   — trained XGBoost model
   data/model/buffer.json            — last 672 values + metadata
-                                      + real residual heatmap (7x24)
+                                      + horizon_metrics (24h/48h/72h backtest MAPE)
+                                      + real residual heatmap (7×24)
+
+Backtest methodology:
+  - BACKTEST_CUTOFFS non-overlapping windows per horizon across the test set
+  - Each window is fully autoregressive (no ground-truth leakage)
+  - One-step-ahead MAPE (~0.67%) is intentionally NOT reported — it is
+    misleading because it never compounds errors across the horizon
 
 This script runs ONCE per week (scheduled).
 The Flask API never retrains — it just loads these two files.
@@ -35,8 +42,20 @@ BUFFER_PATH  = MODEL_DIR / "buffer.json"
 
 # ── Constants (must match app.py exactly) ─────────────────────────────────────
 BUFFER_LEN     = 672   # 1 week of 15-min steps — needed for lag672
-STEPS          = 96    # 24-hour forecast horizon
 HOLDOUT_MONTHS = 3     # last 3 months held out as test (season-aware split)
+
+# Forecast horizons — steps are 15-min intervals
+# These drive both the backtest metrics and the live forecast endpoints
+HORIZONS = {
+    "24h": 96,   # 96  × 15 min = 24 h
+    "48h": 192,  # 192 × 15 min = 48 h
+    "72h": 288,  # 288 × 15 min = 72 h
+}
+MAX_STEPS = max(HORIZONS.values())   # 288 — used for buffer-length guard
+
+# Number of non-overlapping backtest cutoffs per horizon
+# Each cutoff advances by `steps` so windows don't overlap
+BACKTEST_CUTOFFS = 7   # matches season-aware 7-cutoff approach
 
 # ── XGBoost hyperparameters ───────────────────────────────────────────────────
 XGB_PARAMS = dict(
@@ -78,30 +97,39 @@ def make_split(df):
     return train_mask, test_mask, cutoff
 
 
-# ── One-step evaluation ───────────────────────────────────────────────────────
-def evaluate(y_true, y_pred, label=""):
+# ── Metric helpers ────────────────────────────────────────────────────────────
+def _metrics(y_true, y_pred):
+    """Return MAE, RMSE, MAPE for a pair of arrays."""
     mae  = mean_absolute_error(y_true, y_pred)
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-    print(f"  {label}")
-    print(f"    MAE  : {mae:,.1f} MW")
-    print(f"    RMSE : {rmse:,.1f} MW")
-    print(f"    MAPE : {mape:.3f} %")
-    return {"mae": round(mae, 1), "rmse": round(rmse, 1), "mape": round(mape, 3)}
+    return {"mae": round(float(mae), 1), "rmse": round(float(rmse), 1), "mape": round(float(mape), 3)}
 
 
-# ── Autoregressive 24h forecast from a single cutoff ─────────────────────────
-def forecast_from(cutoff_idx, series, model, feature_cols):
+# ── Autoregressive forecast from a single cutoff ─────────────────────────────
+def forecast_from(cutoff_idx, series, model, feature_cols, steps=96):
     """
-    Runs the 96-step autoregressive loop from cutoff_idx.
-    Returns (pred_index, preds, actuals).
-    actuals will be empty array if cutoff is at end of series (live forecast).
+    Runs an autoregressive loop of `steps` 15-min predictions from cutoff_idx.
+
+    Parameters
+    ----------
+    cutoff_idx  : int   — position in `series` where history ends
+    series      : pd.Series
+    model       : trained XGBRegressor
+    feature_cols: list[str]
+    steps       : int   — how many 15-min steps to predict (96/192/288)
+
+    Returns
+    -------
+    pred_index : DatetimeIndex  length = steps
+    preds      : np.ndarray     length = steps
+    actuals    : np.ndarray     length = steps  (empty if at live edge)
     """
     buffer      = list(series.iloc[cutoff_idx - BUFFER_LEN : cutoff_idx])
     cutoff_time = series.index[cutoff_idx - 1]
     preds       = []
 
-    for i in range(STEPS):
+    for i in range(steps):
         next_time = cutoff_time + pd.Timedelta(minutes=15 * (i + 1))
         row = {
             "lag1"           : buffer[-1],
@@ -123,17 +151,91 @@ def forecast_from(cutoff_idx, series, model, feature_cols):
         preds.append(p)
         buffer.append(p)
 
-    pred_index   = pd.date_range(
-        start=cutoff_time, periods=STEPS + 1, freq="15min"
+    pred_index = pd.date_range(
+        start=cutoff_time, periods=steps + 1, freq="15min"
     )[1:]
     # actuals — only available if we're inside the series (not at the live edge)
-    end_idx = cutoff_idx + STEPS
+    end_idx = cutoff_idx + steps
     if end_idx <= len(series):
         actuals = series.iloc[cutoff_idx : end_idx].values
     else:
         actuals = np.array([])
 
     return pred_index, np.array(preds), actuals
+
+
+# ── Multi-horizon backtest — real autoregressive MAPE per horizon ─────────────
+def run_horizon_backtest(series, model, feature_cols, test_start_idx):
+    """
+    For each horizon in HORIZONS, selects BACKTEST_CUTOFFS evenly-spaced
+    non-overlapping cutoffs across the test set, runs the autoregressive
+    forecast, and averages MAE / RMSE / MAPE.
+
+    Cutoffs are spaced by `steps` so windows never overlap — same logic as
+    the 04_xgboost_forecasting_24_48_72 notebook.
+
+    Returns
+    -------
+    horizon_metrics : dict  e.g. {"24h": {"mae":..., "rmse":..., "mape":...}, ...}
+    """
+    print(f"\n[4b/6] Multi-horizon backtest ({BACKTEST_CUTOFFS} cutoffs per horizon)...")
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    horizon_metrics = {}
+
+    for label, steps in HORIZONS.items():
+        print(f"\n       ── {label} ({steps} steps) ──")
+
+        # Space BACKTEST_CUTOFFS cutoffs evenly across the test set,
+        # stepping by `steps` so windows don't overlap
+        cutoffs = []
+        idx = test_start_idx
+        while idx + steps <= len(series) and len(cutoffs) < BACKTEST_CUTOFFS:
+            if idx >= BUFFER_LEN:
+                cutoffs.append(idx)
+            idx += steps   # non-overlapping windows
+
+        if not cutoffs:
+            print(f"       [WARN] Not enough test data for {label} backtest. Skipping.")
+            horizon_metrics[label] = {"mae": None, "rmse": None, "mape": None}
+            continue
+
+        all_preds   = []
+        all_actuals = []
+        per_cutoff  = []
+
+        for c, cidx in enumerate(cutoffs):
+            ts_label = series.index[cidx].strftime("%Y-%m-%d %H:%M")
+            _, preds, actuals = forecast_from(cidx, series, model, feature_cols, steps=steps)
+
+            if len(actuals) == 0:
+                continue
+
+            n    = min(len(preds), len(actuals))
+            m    = _metrics(actuals[:n], preds[:n])
+            per_cutoff.append(m)
+            all_preds.extend(preds[:n].tolist())
+            all_actuals.extend(actuals[:n].tolist())
+
+            print(f"         [{c+1}/{len(cutoffs)}] {ts_label}  "
+                  f"MAE={m['mae']:,.0f} MW  MAPE={m['mape']:.2f}%")
+
+        if not per_cutoff:
+            horizon_metrics[label] = {"mae": None, "rmse": None, "mape": None}
+            continue
+
+        # Average across cutoffs (same approach as notebook)
+        avg_mae  = round(float(np.mean([m["mae"]  for m in per_cutoff])), 1)
+        avg_rmse = round(float(np.mean([m["rmse"] for m in per_cutoff])), 1)
+        avg_mape = round(float(np.mean([m["mape"] for m in per_cutoff])), 3)
+
+        print(f"         ─────────────────────────────────────────")
+        print(f"         Avg MAE  : {avg_mae:,.1f} MW")
+        print(f"         Avg RMSE : {avg_rmse:,.1f} MW")
+        print(f"         Avg MAPE : {avg_mape:.3f} %  ← real autoregressive {label}")
+
+        horizon_metrics[label] = {"mae": avg_mae, "rmse": avg_rmse, "mape": avg_mape}
+
+    return horizon_metrics
 
 
 # ── Residual heatmap — real APE per (day_of_week, hour) ──────────────────────
@@ -150,11 +252,13 @@ def compute_residual_heatmap(series, model, feature_cols, test_start_idx):
     """
     print(f"\n[5/6] Computing residual heatmap across test set...")
 
+    # Heatmap is built from 24h autoregressive windows — finest granularity
+    HEATMAP_STEPS = HORIZONS["24h"]   # 96
     # One cutoff every 2 days (192 steps) — good coverage, manageable runtime
     CUTOFF_STEP = 192
     cutoffs = []
     idx = test_start_idx
-    while idx + STEPS <= len(series):
+    while idx + HEATMAP_STEPS <= len(series):
         if idx >= BUFFER_LEN:
             cutoffs.append(idx)
         idx += CUTOFF_STEP
@@ -173,7 +277,7 @@ def compute_residual_heatmap(series, model, feature_cols, test_start_idx):
 
         try:
             pred_index, preds, actuals = forecast_from(
-                cutoff_idx, series, model, feature_cols
+                cutoff_idx, series, model, feature_cols, steps=HEATMAP_STEPS
             )
 
             # Only use steps where we have real actuals
@@ -281,11 +385,12 @@ if __name__ == "__main__":
     model.fit(X_train, y_train)
     print(f"      Done.")
 
-    pred_test = model.predict(X_test)
-    metrics   = evaluate(y_test.values, pred_test, label="Test set (one-step ahead)")
-
-    # ── 5. Residual heatmap ───────────────────────────────────────────────────
+    # Real autoregressive backtest — the only metrics worth reporting
+    # (one-step MAPE ~0.67% is NOT shown — it's misleading for operations)
     test_start_idx = int(df.index.searchsorted(cutoff))
+    horizon_metrics = run_horizon_backtest(
+        full_series, model, FEATURE_COLS, test_start_idx
+    )
     heatmap_matrix, heatmap_flat = compute_residual_heatmap(
         full_series, model, FEATURE_COLS, test_start_idx
     )
@@ -298,23 +403,31 @@ if __name__ == "__main__":
     print(f"      Saved model : data/model/xgboost_model.joblib")
 
     buffer_payload = {
-        "trained_at"    : run_start.isoformat(),
-        "data_end"      : str(df.index[-1]),
-        "buffer_len"    : BUFFER_LEN,
-        "feature_cols"  : FEATURE_COLS,
-        "test_metrics"  : metrics,
-        "buffer"        : df["load"].values[-BUFFER_LEN:].tolist(),
+        "trained_at"      : run_start.isoformat(),
+        "data_end"        : str(df.index[-1]),
+        "buffer_len"      : BUFFER_LEN,
+        "feature_cols"    : FEATURE_COLS,
 
-        # Real residuals from test set autoregressive forecasts
-        # matrix[day_of_week][hour] = mean APE %
-        # 0=Mon … 6=Sun,  hour 0–23
-        "heatmap_matrix": heatmap_matrix,
-        "heatmap_flat"  : heatmap_flat,   # 168 values, row-major
-        "heatmap_info"  : {
+        # ── Backtest metrics (autoregressive, non-overlapping windows) ──────
+        # These are real operational accuracy figures — NOT one-step-ahead.
+        # Each horizon ran BACKTEST_CUTOFFS non-overlapping windows across the
+        # last HOLDOUT_MONTHS of data. Metrics are averaged across those windows.
+        "horizon_metrics" : horizon_metrics,
+        # e.g. {"24h": {"mae": 924, "rmse": 1245, "mape": 1.69},
+        #        "48h": {"mae": 1148, "rmse": 1472, "mape": 2.11},
+        #        "72h": {"mae": 1523, "rmse": 1942, "mape": 2.74}}
+
+        "buffer"          : df["load"].values[-BUFFER_LEN:].tolist(),
+
+        # Real residuals from test set 24h autoregressive forecasts
+        # matrix[day_of_week][hour] = mean APE %,  0=Mon … 6=Sun, hour 0–23
+        "heatmap_matrix"  : heatmap_matrix,
+        "heatmap_flat"    : heatmap_flat,   # 168 values, row-major
+        "heatmap_info"    : {
             "rows"        : "day_of_week (0=Mon … 6=Sun)",
             "cols"        : "hour_of_day (0–23)",
-            "values"      : "mean absolute percentage error % (real forecasts vs actuals)",
-            "n_cutoffs"   : len([i for i in range(test_start_idx, len(df) - STEPS, 192)
+            "values"      : "mean absolute percentage error % (24h autoregressive forecasts vs actuals)",
+            "n_cutoffs"   : len([i for i in range(test_start_idx, len(df) - HORIZONS["24h"], 192)
                                  if i >= BUFFER_LEN]),
             "cutoff_step" : "192 steps = every 2 days",
         },
@@ -326,11 +439,14 @@ if __name__ == "__main__":
     print(f"      Saved buffer: data/model/buffer.json")
     print(f"        ↳ last {BUFFER_LEN} actual values  ({BUFFER_LEN * 15 // 60}h history)")
     print(f"        ↳ 7×24 real residual heatmap from test set")
+    print(f"        ↳ horizon_metrics: 24h / 48h / 72h autoregressive backtest")
 
     duration = (datetime.now() - run_start).seconds
     print(f"\n{'=' * 55}")
     print(f"Complete in {duration}s.")
-    print(f"  One-step MAPE : {metrics['mape']:.3f}%")
+    for h, m in horizon_metrics.items():
+        if m["mape"] is not None:
+            print(f"  {h} MAPE : {m['mape']:.3f}%  |  MAE: {m['mae']:,.0f} MW  |  RMSE: {m['rmse']:,.0f} MW")
     print(f"  Heatmap range : {min(heatmap_flat):.2f}% – {max(heatmap_flat):.2f}%")
     print(f"  Next step     : python src/api/app.py")
     print(f"{'=' * 55}")
