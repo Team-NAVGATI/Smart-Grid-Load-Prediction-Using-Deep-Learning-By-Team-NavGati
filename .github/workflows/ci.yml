@@ -20,7 +20,7 @@ jobs:
           cache: "pip"
 
       - name: Install linting tools
-        run: pip install flake8 black isort
+        run: pip install flake8 "black[jupyter]" isort
 
       - run: black --check .
       - run: isort --check-only .
