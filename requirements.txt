@@ -9,3 +9,6 @@ xgboost
 scikit-learn
 flask 
 flask-cors
+isort
+black
+pre-commit
