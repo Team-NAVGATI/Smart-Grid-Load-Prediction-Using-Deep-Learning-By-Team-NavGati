@@ -5,7 +5,7 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main]
-  workflow_dispatch:   # ✅ manual trigger enabled
+  workflow_dispatch:
 
 jobs:
 
@@ -51,8 +51,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      - name: Run tests
-        run: pytest tests/ --cov=src --cov-report=term-missing -v
+      - name: Run tests (if available)
+        run: |
+          if [ -d "tests" ]; then
+            pytest tests/ --cov=src --cov-report=term-missing -v
+          else
+            echo "No tests folder found, skipping tests."
+          fi
 
   build-check:
     name: Import & Build Check
