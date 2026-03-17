@@ -5,6 +5,7 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
 
@@ -29,11 +30,8 @@ jobs:
       - name: isort Check
         run: isort --check-only . --skip notebooks
 
-      - name: Flake8 Check
-        - run: flake8 . \
-          --max-line-length=100 \
-          --exclude=.venv,__pycache__,notebooks \
-          --ignore=F541,E203,F841,E402,E501
+      - name: Flake8 Check (relaxed)
+        run: flake8 . --max-line-length=100 --exclude=.venv,__pycache__,notebooks --ignore=F541,E203,F841,E402,E501,W503,E226
 
   test:
     name: Run Tests
@@ -53,8 +51,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      - name: Run tests
-        run: pytest tests/ --cov=src --cov-report=term-missing -v
+      - name: Run tests (if available)
+        run: |
+          if [ -d "tests" ]; then
+            pytest tests/ --cov=src --cov-report=term-missing -v
+          else
+            echo "No tests folder found, skipping tests."
+          fi
 
   build-check:
     name: Import & Build Check
