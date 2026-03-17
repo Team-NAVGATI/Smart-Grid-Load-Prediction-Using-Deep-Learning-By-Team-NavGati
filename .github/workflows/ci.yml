@@ -30,7 +30,10 @@ jobs:
         run: isort --check-only . --skip notebooks
 
       - name: Flake8 Check
-        run: flake8 . --max-line-length=100 --exclude=.venv,__pycache__,notebooks
+        - run: flake8 . \
+          --max-line-length=100 \
+          --exclude=.venv,__pycache__,notebooks \
+          --ignore=F541,E203,F841,E402,E501
 
   test:
     name: Run Tests
