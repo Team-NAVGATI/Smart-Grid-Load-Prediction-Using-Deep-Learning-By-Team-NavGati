@@ -74,6 +74,15 @@
   main::-webkit-scrollbar-track { background: transparent; }
   main::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
 
+  /* MAIN VIEWS */
+  .view { display: none; flex-direction: column; gap: 16px; }
+  .view.active { display: flex; }
+
+  /* PLACEHOLDER CONTENT */
+  .placeholder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .placeholder-line { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+  .placeholder-line:last-child { margin-bottom: 0; }
+
   /* PAGE HEADER */
   .page-header { display: flex; align-items: center; justify-content: space-between; }
   .page-title { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
@@ -201,10 +210,10 @@
   </div>
   <div class="nav-sep"></div>
   <div class="nav-tabs">
-    <div class="nav-tab active">Forecast</div>
-    <div class="nav-tab">Analysis</div>
-    <div class="nav-tab">Models</div>
-    <div class="nav-tab">Reports</div>
+    <div class="nav-tab active" data-view="forecast">Forecast</div>
+    <div class="nav-tab" data-view="analysis">Analysis</div>
+    <div class="nav-tab" data-view="models">Models</div>
+    <div class="nav-tab" data-view="reports">Reports</div>
   </div>
   <div class="nav-right">
     <div class="wf-pill" id="navDate">—</div>
@@ -238,6 +247,8 @@
 
 <!-- MAIN -->
 <main>
+
+  <div class="view active" id="view-forecast">
 
   <!-- ERROR BANNER -->
   <div class="error-banner" id="errorBanner">
@@ -510,6 +521,130 @@
     <span>⬡ GridSense v0.2 · NRLDC North Region</span>
     <span id="footerDataEnd">—</span>
     <span style="margin-left:auto">Data cadence: 15 min · Model: XGBoost Season-Aware · LSTM coming</span>
+  </div>
+
+  </div>
+
+  <div class="view" id="view-analysis">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Load Analysis — North Region</div>
+        <div class="page-sub">Operational analysis summary for current forecast cycle</div>
+      </div>
+    </div>
+
+    <div class="placeholder-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Error Pattern Insights</div>
+            <div class="card-subtitle">Focus areas from recent forecast behavior</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="placeholder-line">• Morning transition slots show higher variance than mid-day.</div>
+          <div class="placeholder-line">• Weekday peaks remain more stable than weekend peaks.</div>
+          <div class="placeholder-line">• Backtest heatmap remains primary source for slot-level reliability.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Operational Notes</div>
+            <div class="card-subtitle">Action-oriented review points</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="placeholder-line">• Monitor high-demand windows around peak ramp-up hours.</div>
+          <div class="placeholder-line">• Cross-check abnormal spikes with weather and holiday signals.</div>
+          <div class="placeholder-line">• Re-run training after material demand pattern shifts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-models">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Model Stack</div>
+        <div class="page-sub">Status and readiness of forecasting models</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Model Readiness Matrix</div>
+          <div class="card-subtitle">Current and planned forecasting pipelines</div>
+        </div>
+      </div>
+      <div>
+        <div class="model-row">
+          <div class="model-dot" style="background:#1B4FD8"></div>
+          <div style="flex:1">
+            <div class="model-name">XGBoost</div>
+            <div class="model-type">Production model · Season-aware features</div>
+          </div>
+          <div class="wf-pill sm">Active</div>
+        </div>
+        <div class="model-row">
+          <div class="model-dot" style="background:#7C3AED"></div>
+          <div style="flex:1">
+            <div class="model-name">LSTM</div>
+            <div class="model-type">Sequence model · Direct multi-step output</div>
+          </div>
+          <div class="wf-pill sm">In Progress</div>
+        </div>
+        <div class="model-row">
+          <div class="model-dot" style="background:#059669"></div>
+          <div style="flex:1">
+            <div class="model-name">Linear Regression</div>
+            <div class="model-type">Baseline benchmark for drift checks</div>
+          </div>
+          <div class="wf-pill sm">Baseline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-reports">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Reports</div>
+        <div class="page-sub">Generated artifacts and export-ready summaries</div>
+      </div>
+    </div>
+
+    <div class="placeholder-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Forecast Reporting</div>
+            <div class="card-subtitle">Daily and weekly operational summaries</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="placeholder-line">• Daily forecast snapshot with peak/trough summary.</div>
+          <div class="placeholder-line">• Weekly accuracy digest for stakeholder review.</div>
+          <div class="placeholder-line">• CSV export available from Forecast tab.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Model Governance</div>
+            <div class="card-subtitle">Tracking quality and retraining posture</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="placeholder-line">• Log model performance against rolling benchmarks.</div>
+          <div class="placeholder-line">• Maintain retraining notes and data coverage updates.</div>
+          <div class="placeholder-line">• Use residual heatmap trends for exception reporting.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </main>
@@ -832,7 +967,33 @@ function exportCSV() {
   a.click();
 }
 
+function setupNavTabs() {
+  const tabs = document.querySelectorAll('.nav-tab');
+  const views = {
+    forecast: 'view-forecast',
+    analysis: 'view-analysis',
+    models: 'view-models',
+    reports: 'view-reports'
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.view;
+      const targetViewId = views[target];
+      if (!targetViewId) return;
+
+      tabs.forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+
+      tab.classList.add('active');
+      const targetView = document.getElementById(targetViewId);
+      if (targetView) targetView.classList.add('active');
+    });
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
+setupNavTabs();
 loadForecast();   // fetches /health, /forecast, /residuals
 </script>
 </body>
