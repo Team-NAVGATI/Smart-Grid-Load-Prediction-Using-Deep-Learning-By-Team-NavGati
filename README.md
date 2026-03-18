@@ -512,7 +512,7 @@ Design patterns reflected in code:
 
 ---
 
-## External Research Notes (Web + Context7)
+## External Research Notes 
 
 ### Grid context (web research)
 
