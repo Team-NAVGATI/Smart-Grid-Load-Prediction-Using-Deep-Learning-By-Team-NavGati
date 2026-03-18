@@ -137,6 +137,11 @@
   .now-label { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: var(--accent); white-space: nowrap; letter-spacing: .06em; text-transform: uppercase; }
   .annotation { position: absolute; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 500; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 
+  /* HORIZON TOGGLE BUTTONS */
+  .horizon-btn { height: 26px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+  .horizon-btn:hover { border-color: var(--accent-muted); color: var(--accent); }
+  .horizon-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
   /* TOOLTIP */
   .chart-tooltip { position: absolute; background: var(--text-primary); color: white; padding: 7px 10px; border-radius: 7px; font-size: 11px; pointer-events: none; display: none; z-index: 10; white-space: nowrap; }
   .tooltip-row { display: flex; gap: 6px; align-items: center; margin-top: 3px; }
@@ -262,19 +267,28 @@
       <div class="page-sub" id="pageSubtitle">Next 24h outlook · XGBoost model active · Loading...</div>
     </div>
     <div class="header-controls">
-      <div class="wf-pill">+24h</div>
       <div class="wf-pill accent" onclick="refreshForecast()">↻ Refresh</div>
       <div class="wf-pill accent" onclick="exportCSV()">↓ Export</div>
     </div>
   </div>
 
   <!-- KPI SCORECARDS -->
-  <div class="section-label">Model Performance — XGBoost (Backtest)</div>
-  <div class="kpi-row">
+  <div class="section-label">Model Performance — XGBoost (Autoregressive Backtest · 7 Cutoffs)</div>
+  <div class="kpi-row" style="grid-template-columns: repeat(6, 1fr)">
     <div class="kpi-card">
-      <div class="kpi-label">Avg MAPE · 24h Ahead</div>
-      <div class="kpi-value good" id="kpiMape">—</div>
-      <div class="kpi-sub" id="kpiMapeSub"><span class="skeleton" style="width:80px;height:12px;display:inline-block"></span></div>
+      <div class="kpi-label">MAPE · 24h Ahead</div>
+      <div class="kpi-value good" id="kpiMape24">—</div>
+      <div class="kpi-sub" id="kpiMape24Sub"><span class="skeleton" style="width:80px;height:12px;display:inline-block"></span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">MAPE · 48h Ahead</div>
+      <div class="kpi-value good" id="kpiMape48">—</div>
+      <div class="kpi-sub" id="kpiMape48Sub"><span class="skeleton" style="width:80px;height:12px;display:inline-block"></span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">MAPE · 72h Ahead</div>
+      <div class="kpi-value good" id="kpiMape72">—</div>
+      <div class="kpi-sub" id="kpiMape72Sub"><span class="skeleton" style="width:80px;height:12px;display:inline-block"></span></div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Avg MAE · 24h Ahead</div>
@@ -300,10 +314,17 @@
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-title">Next 24-Hour Forecast</div>
+          <div class="card-title" id="chartTitle">Next 24-Hour Forecast</div>
           <div class="card-subtitle" id="chartSubtitle">XGBoost prediction · Loading data from API...</div>
         </div>
-        <div style="font-size:11px;color:var(--text-tertiary)" id="dataEndLabel">Data end: —</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="display:flex;gap:4px" id="horizonTabs">
+            <button class="horizon-btn active" data-h="24h" onclick="switchHorizon('24h')">24h</button>
+            <button class="horizon-btn" data-h="48h" onclick="switchHorizon('48h')">48h</button>
+            <button class="horizon-btn" data-h="72h" onclick="switchHorizon('72h')">72h</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-tertiary)" id="dataEndLabel">Data end: —</div>
+        </div>
       </div>
       <div class="card-body" style="padding-bottom:0">
         <div class="forecast-chart" id="forecastChartWrap">
@@ -321,7 +342,7 @@
               <div class="gridline" style="top:80%"></div>
             </div>
             <div class="now-line" style="left:0%" id="nowLine"><div class="now-label">Now</div></div>
-            <svg class="chart-svg" id="forecastSvg" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+            <svg class="chart-svg" id="forecastSvg"></svg>
             <div class="annotation" id="peakAnnotation" style="display:none"></div>
           </div>
           <!-- X axis -->
@@ -343,14 +364,17 @@
         <div class="card-header">
           <div>
             <div class="card-title">Model Comparison</div>
-            <div class="card-subtitle">MAPE · 24h ahead backtest</div>
+            <div class="card-subtitle" id="modelCompSubtitle">MAPE · 24h autoregressive backtest · 7 cutoffs</div>
           </div>
         </div>
         <div>
           <div class="model-row">
             <div class="model-dot" style="background:#1B4FD8"></div>
             <div style="flex:1">
-              <div class="model-name">XGBoost</div>
+              <div class="model-name" style="display:flex;align-items:center;gap:6px">
+                XGBoost
+                <span id="xgbHorizonBadge" style="font-size:10px;font-weight:600;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:10px">24h</span>
+              </div>
               <div class="model-type">Season-aware · Active</div>
             </div>
             <div class="model-bar-wrap">
@@ -398,16 +422,6 @@
               <div class="alert-desc" id="alertApiDesc">Loading forecast data...</div>
             </div>
             <div class="alert-time" id="alertApiTime">—</div>
-          </div>
-          <div class="alert-item">
-            <div class="alert-icon amber">
-              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 1L9 9H1L5 1Z" fill="#D97706"/></svg>
-            </div>
-            <div class="alert-body">
-              <div class="alert-title">LSTM In Development</div>
-              <div class="alert-desc">Direct 96-step Dense output · Gap-aware sequences</div>
-            </div>
-            <div class="alert-time">Pending</div>
           </div>
           <div class="alert-item">
             <div class="alert-icon amber">
@@ -654,7 +668,9 @@
 const API = 'http://localhost:5000';
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let forecastData = null;
+let forecastData   = null;   // currently displayed forecast response
+let forecastCache  = {};     // cache: {"24h": response, "48h": response, ...}
+let activeHorizon  = '24h';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt(n)    { return Math.round(n).toLocaleString('en-IN'); }
@@ -672,111 +688,80 @@ function nowIST() {
   }) + ' IST';
 }
 
-// ── Fetch /health then /forecast ──────────────────────────────────────────────
-async function loadForecast() {
+// ── Horizon switcher ──────────────────────────────────────────────────────────
+async function switchHorizon(h) {
+  if (h === activeHorizon && forecastCache[h]) return;
+  activeHorizon = h;
+
+  // Update button states
+  document.querySelectorAll('.horizon-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.h === h);
+  });
+
+  // Use cache if available, otherwise fetch
+  if (forecastCache[h]) {
+    forecastData = forecastCache[h];
+    updateChartOnly(forecastData);
+    return;
+  }
+
+  // Show loading state on subtitle
+  document.getElementById('chartSubtitle').textContent = `Fetching ${h} forecast...`;
+
   try {
-    const [healthRes, forecastRes, residualsRes] = await Promise.all([
-      fetch(`${API}/health`),
-      fetch(`${API}/forecast`),
-      fetch(`${API}/residuals`)
-    ]);
-
-    if (!healthRes.ok || !forecastRes.ok) throw new Error('API error');
-
-    const health = await healthRes.json();
-    forecastData = await forecastRes.json();
-
-    document.getElementById('errorBanner').style.display = 'none';
-    renderAll(health, forecastData);
-
-    // Heatmap — real residuals if available, static fallback otherwise
-    if (residualsRes.ok) {
-      const residuals = await residualsRes.json();
-      buildHeatmap(residuals.heatmap_matrix);
-      // Update KPI backtest cutoff count from real heatmap metadata
-      if (residuals.heatmap_info && residuals.heatmap_info.n_cutoffs) {
-        const mapeVal = forecastData.test_metrics.mape;
-        document.getElementById('kpiMapeSub').innerHTML =
-          `<span class="badge ${mapeClass(mapeVal)}">${mapeVal < 4 ? '✓ On target' : '⚠ Investigate'}</span> ${residuals.heatmap_info.n_cutoffs}-cutoff backtest`;
-      }
-    } else {
-      buildHeatmap(null);
-    }
-
-  } catch (e) {
-    document.getElementById('errorBanner').style.display = 'block';
-    buildHeatmap(null);
-    console.error('API fetch failed:', e);
+    const res  = await fetch(`${API}/forecast?horizon=${h}`);
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    forecastCache[h] = data;
+    forecastData     = data;
+    updateChartOnly(data);
+  } catch(e) {
+    document.getElementById('chartSubtitle').textContent = `Failed to load ${h} forecast`;
+    console.error(e);
   }
 }
 
-function refreshForecast() { loadForecast(); }
-
-// ── Render everything ─────────────────────────────────────────────────────────
-function renderAll(health, data) {
-  const fc      = data.forecast;        // [{datetime, load_mw}, ...]
-  const metrics = data.test_metrics;    // {mae, rmse, mape}
-  const loads   = fc.map(r => r.load_mw);
-  const peak    = Math.max(...loads);
-  const trough  = Math.min(...loads);
+// ── Update only the chart area (used when switching horizons) ─────────────────
+function updateChartOnly(data) {
+  const fc    = data.forecast;
+  const loads = fc.map(r => r.load_mw);
+  const peak  = Math.max(...loads);
   const peakIdx = loads.indexOf(peak);
-  const troughIdx = loads.indexOf(trough);
+  const h     = data.horizon;   // "24h" | "48h" | "72h"
+  const hInt  = data.horizon_h; // 24 | 48 | 72
 
-  // Nav date
-  const now = new Date();
-  document.getElementById('navDate').textContent = now.toLocaleDateString('en-IN',
-    { weekday:'short', day:'numeric', month:'short', year:'numeric' });
-
-  // Page subtitle
-  document.getElementById('pageSubtitle').textContent =
-    `Next 24h outlook · Updated ${nowIST()} · XGBoost model active`;
-
-  // KPI cards
-  const mapeVal = metrics.mape;
-  document.getElementById('kpiMape').textContent = mapeVal.toFixed(2) + '%';
-  document.getElementById('kpiMape').className   = 'kpi-value ' + mapeClass(mapeVal);
-  document.getElementById('kpiMapeSub').innerHTML =
-    `<span class="badge ${mapeClass(mapeVal)}">${mapeVal < 4 ? '✓ On target' : '⚠ Investigate'}</span> 7-cutoff backtest`;
-
-  document.getElementById('kpiMae').textContent  = fmt(metrics.mae) + ' MW';
-  document.getElementById('kpiMaeSub').textContent = 'Avg over 7 backtest cutoffs';
-
-  document.getElementById('kpiPeak').textContent = fmtMW(peak);
-  document.getElementById('kpiPeakSub').textContent = 'at ' + fc[peakIdx].datetime.slice(11) + ' IST';
-
-  document.getElementById('kpiTime').textContent = data.generated_at.slice(11, 16) + ' IST';
-  document.getElementById('kpiTimeSub').textContent = 'Data ends ' + data.data_end.slice(0, 10);
-
-  // Chart subtitle + data end
+  document.getElementById('chartTitle').textContent    = `Next ${hInt}-Hour Forecast`;
   document.getElementById('chartSubtitle').textContent =
-    `XGBoost 24h forecast · ${fc[0].datetime} → ${fc[fc.length-1].datetime}`;
-  document.getElementById('dataEndLabel').textContent = 'Data end: ' + data.data_end.slice(0, 16);
+    `XGBoost ${h} forecast · ${fc[0].datetime} → ${fc[fc.length-1].datetime}`;
+  document.getElementById('pageSubtitle').textContent =
+    `Next ${h} outlook · Updated ${nowIST()} · XGBoost model active`;
 
-  // Model comparison bar — XGBoost
-  // Bar width relative to LR baseline (~5%), so XGBoost fills proportionally less
-  const barWidth = Math.round((mapeVal / 6) * 100);
-  document.getElementById('xgbBar').style.width  = barWidth + '%';
-  document.getElementById('xgbMape').textContent = mapeVal.toFixed(2) + '%';
-  document.getElementById('xgbMape').className   = 'model-metric ' + mapeClass(mapeVal);
+  // Update model comparison row to reflect active horizon
+  const hm = data.horizon_metrics;
+  if (hm && hm[h]) {
+    const m = hm[h];
+    const w = Math.round((m.mape / 6) * 100);
+    document.getElementById('xgbBar').style.width    = w + '%';
+    document.getElementById('xgbMape').textContent   = m.mape.toFixed(2) + '%';
+    document.getElementById('xgbMape').className     = 'model-metric ' + mapeClass(m.mape);
+    document.getElementById('xgbHorizonBadge').textContent = h;
+    document.getElementById('modelCompSubtitle').textContent =
+      `MAPE · ${h} autoregressive backtest · 7 cutoffs`;
+  }
 
-  // Alert feed — update first alert
-  document.getElementById('alertApiDesc').textContent =
-    `XGBoost forecast loaded · ${fc.length} steps · Peak ${fmtMW(peak)}`;
-  document.getElementById('alertApiTime').textContent = nowIST().slice(0, 5);
-
-  // Peak panel
-  document.getElementById('peakVal').textContent   = fmtMW(peak);
-  document.getElementById('peakTime').textContent  = fc[peakIdx].datetime.slice(11) + ' IST · XGBoost';
-  document.getElementById('troughVal').textContent = fmtMW(trough);
+  // Update peak panel to reflect active horizon
+  const trough    = Math.min(...loads);
+  const troughIdx = loads.indexOf(trough);
+  document.getElementById('peakVal').textContent    = fmtMW(peak);
+  document.getElementById('peakTime').textContent   = fc[peakIdx].datetime.slice(11) + ` IST · XGBoost ${h}`;
+  document.getElementById('troughVal').textContent  = fmtMW(trough);
   document.getElementById('troughTime').textContent = fc[troughIdx].datetime.slice(11) + ' IST';
-  document.getElementById('peakMape').textContent  = mapeVal.toFixed(2) + '%';
-  document.getElementById('trainedAt').textContent = data.trained_at.slice(0, 10);
 
-  // Footer
-  document.getElementById('footerDataEnd').textContent =
-    'Model trained on data up to ' + data.data_end.slice(0, 10);
+  // Update peak KPI card
+  document.getElementById('kpiPeak').textContent    = fmtMW(peak);
+  document.getElementById('kpiPeakSub').textContent = `at ${fc[peakIdx].datetime.slice(11)} IST · ${h}`;
 
-  // Next 2 hours table (8 steps)
+  // Update forecast table (first 8 steps)
   const tableEl = document.getElementById('forecastTable');
   tableEl.innerHTML = '';
   fc.slice(0, 8).forEach(row => {
@@ -789,36 +774,176 @@ function renderAll(health, data) {
     tableEl.appendChild(cell);
   });
 
-  // Draw chart (heatmap called separately after /residuals fetch)
-  drawForecastChart(fc, peak, peakIdx);
+  requestAnimationFrame(() => drawForecastChart(fc, peak, peakIdx));
+}
+
+// ── Fetch /health + /forecast (24h default) + /residuals on init ──────────────
+async function loadForecast() {
+  try {
+    const [healthRes, forecastRes, residualsRes] = await Promise.all([
+      fetch(`${API}/health`),
+      fetch(`${API}/forecast?horizon=24h`),
+      fetch(`${API}/residuals`)
+    ]);
+
+    if (!healthRes.ok || !forecastRes.ok) throw new Error('API error');
+
+    const health = await healthRes.json();
+    const data   = await forecastRes.json();
+
+    forecastCache['24h'] = data;
+    forecastData         = data;
+    activeHorizon        = '24h';
+
+    document.getElementById('errorBanner').style.display = 'none';
+    renderAll(health, data);
+
+    // Heatmap — real residuals if available, static fallback otherwise
+    if (residualsRes.ok) {
+      const residuals = await residualsRes.json();
+      buildHeatmap(residuals.heatmap_matrix);
+      if (residuals.heatmap_info && residuals.heatmap_info.n_cutoffs) {
+        const mape24 = data.horizon_metrics["24h"].mape;
+        document.getElementById('kpiMape24Sub').innerHTML =
+          `<span class="badge ${mapeClass(mape24)}">${mape24 < 4 ? '✓ On target' : '⚠ Investigate'}</span> ${residuals.heatmap_info.n_cutoffs}-cutoff heatmap`;
+      }
+    } else {
+      buildHeatmap(null);
+    }
+
+  } catch (e) {
+    document.getElementById('errorBanner').style.display = 'block';
+    buildHeatmap(null);
+    console.error('API fetch failed:', e);
+  }
+}
+
+function refreshForecast() {
+  forecastCache  = {};   // clear cache so all horizons refetch fresh data
+  activeHorizon  = '24h';
+  document.querySelectorAll('.horizon-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.h === '24h');
+  });
+  loadForecast();
+}
+
+// ── Render everything ─────────────────────────────────────────────────────────
+function renderAll(health, data) {
+  const fc      = data.forecast;           // [{datetime, load_mw}, ...]
+  const hm      = data.horizon_metrics;    // {"24h":{mae,rmse,mape}, "48h":..., "72h":...}
+  const m24     = hm["24h"];               // primary horizon for KPI cards
+  const loads   = fc.map(r => r.load_mw);
+  const peak    = Math.max(...loads);
+  const trough  = Math.min(...loads);
+  const peakIdx = loads.indexOf(peak);
+  const troughIdx = loads.indexOf(trough);
+
+  // Nav date
+  const now = new Date();
+  document.getElementById('navDate').textContent = now.toLocaleDateString('en-IN',
+    { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+  // Page subtitle — will be updated again by updateChartOnly with correct horizon
+  document.getElementById('pageSubtitle').textContent =
+    `Next 24h outlook · Updated ${nowIST()} · XGBoost model active`;
+
+  // KPI cards — all 3 horizons
+  function renderMapeCard(idVal, idSub, m) {
+    if (!m || m.mape == null) return;
+    document.getElementById(idVal).textContent = m.mape.toFixed(2) + '%';
+    document.getElementById(idVal).className   = 'kpi-value ' + mapeClass(m.mape);
+    document.getElementById(idSub).innerHTML   =
+      `<span class="badge ${mapeClass(m.mape)}">${m.mape < 4 ? '✓ On target' : '⚠ Investigate'}</span> 7-cutoff backtest`;
+  }
+  renderMapeCard('kpiMape24', 'kpiMape24Sub', hm["24h"]);
+  renderMapeCard('kpiMape48', 'kpiMape48Sub', hm["48h"]);
+  renderMapeCard('kpiMape72', 'kpiMape72Sub', hm["72h"]);
+
+  document.getElementById('kpiMae').textContent  = fmt(m24.mae) + ' MW';
+  document.getElementById('kpiMaeSub').textContent = 'Avg over 7 backtest cutoffs';
+
+  document.getElementById('kpiPeak').textContent = fmtMW(peak);
+  document.getElementById('kpiPeakSub').textContent = 'at ' + fc[peakIdx].datetime.slice(11) + ' IST';
+
+  document.getElementById('kpiTime').textContent = data.generated_at.slice(11, 16) + ' IST';
+  document.getElementById('kpiTimeSub').textContent = 'Data ends ' + data.data_end.slice(0, 10);
+
+  // Model comparison bar — single XGBoost row, seeded with 24h on load
+  function renderModelBar(m, h) {
+    if (!m || m.mape == null) return;
+    const w = Math.round((m.mape / 6) * 100);
+    document.getElementById('xgbBar').style.width    = w + '%';
+    document.getElementById('xgbMape').textContent   = m.mape.toFixed(2) + '%';
+    document.getElementById('xgbMape').className     = 'model-metric ' + mapeClass(m.mape);
+    document.getElementById('xgbHorizonBadge').textContent = h;
+    document.getElementById('modelCompSubtitle').textContent =
+      `MAPE · ${h} autoregressive backtest · 7 cutoffs`;
+  }
+  renderModelBar(hm["24h"], "24h");
+
+  // Alert feed
+  document.getElementById('alertApiDesc').textContent =
+    `XGBoost forecast loaded · ${fc.length} steps · Peak ${fmtMW(peak)}`;
+  document.getElementById('alertApiTime').textContent = nowIST().slice(0, 5);
+
+  // Peak panel static info (dynamic parts handled by updateChartOnly)
+  document.getElementById('peakMape').textContent  = m24.mape.toFixed(2) + '%';
+  document.getElementById('trainedAt').textContent = data.trained_at.slice(0, 10);
+
+  // Footer
+  document.getElementById('footerDataEnd').textContent =
+    'Model trained on data up to ' + data.data_end.slice(0, 10);
+
+  // Chart subtitle + data end
+  document.getElementById('dataEndLabel').textContent = 'Data end: ' + data.data_end.slice(0, 16);
+
+  // Draw chart + update peak panel (heatmap called separately after /residuals fetch)
+  updateChartOnly(data);
 }
 
 // ── Forecast Chart ────────────────────────────────────────────────────────────
-function drawForecastChart(fc, peak, peakIdx) {
-  const loads  = fc.map(r => r.load_mw);
-  const minV   = Math.min(...loads) * 0.985;
-  const maxV   = Math.max(...loads) * 1.015;
-  const range  = maxV - minV;
-  const W = 600, H = 200;
+// Uses real pixel dimensions from getBoundingClientRect() — no fixed viewBox.
+// Tooltip listeners are attached once (chartListenersAttached flag).
+let chartListenersAttached = false;
+let currentFc = null;   // kept for tooltip lookup after redraw
 
-  const scaleX = i  => (i / (loads.length - 1)) * W;
-  const scaleY = v  => H - ((v - minV) / range) * H;
+function drawForecastChart(fc, peak, peakIdx) {
+  currentFc        = fc;
+  const loads      = fc.map(r => r.load_mw);
+  const minV       = Math.min(...loads) * 0.985;
+  const maxV       = Math.max(...loads) * 1.015;
+  const range      = maxV - minV;
+
+  // Get real pixel size of the plot area AFTER layout
+  const plotEl = document.getElementById('fcPlot');
+  const rect   = plotEl.getBoundingClientRect();
+  const W      = rect.width  || 600;
+  const H      = rect.height || 200;
+
+  // Set SVG size explicitly to match plot area
+  const svg = document.getElementById('forecastSvg');
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const scaleX = i => (i / (loads.length - 1)) * W;
+  const scaleY = v => H - ((v - minV) / range) * H;
 
   // Y axis labels
-  const ySteps = 6;
+  const ySteps  = 6;
   const yLabels = document.getElementById('yAxis');
   yLabels.innerHTML = '';
   for (let i = ySteps; i >= 0; i--) {
-    const v = minV + (range / ySteps) * i;
+    const v    = minV + (range / ySteps) * i;
     const span = document.createElement('span');
     span.textContent = Math.round(v / 1000) + 'k';
     yLabels.appendChild(span);
   }
 
-  // X axis labels — every 3h = 12 steps
-  const xAxis = document.getElementById('xAxis');
+  // X axis labels — 8 evenly spaced ticks
+  const xAxis  = document.getElementById('xAxis');
   xAxis.innerHTML = '';
-  const xStep = Math.floor(fc.length / 8);
+  const xStep  = Math.floor(fc.length / 8);
   for (let i = 0; i <= 8; i++) {
     const idx  = Math.min(i * xStep, fc.length - 1);
     const span = document.createElement('span');
@@ -827,56 +952,58 @@ function drawForecastChart(fc, peak, peakIdx) {
   }
 
   // Confidence band polygon (±5%)
-  const upperPts = loads.map((v, i) => `${scaleX(i)},${scaleY(v * 1.05)}`).join(' ');
+  const upperPts = loads.map((v, i) => `${scaleX(i).toFixed(1)},${scaleY(v * 1.05).toFixed(1)}`).join(' ');
   const lowerPts = [...loads].reverse().map((v, i) =>
-    `${scaleX(loads.length - 1 - i)},${scaleY(v * 0.95)}`).join(' ');
+    `${scaleX(loads.length - 1 - i).toFixed(1)},${scaleY(v * 0.95).toFixed(1)}`).join(' ');
 
   // Forecast polyline
-  const linePts = loads.map((v, i) => `${scaleX(i)},${scaleY(v)}`).join(' ');
+  const linePts = loads.map((v, i) => `${scaleX(i).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ');
 
-  const svg = document.getElementById('forecastSvg');
   svg.innerHTML = `
     <defs>
       <linearGradient id="bandGrad" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="#1B4FD8" stop-opacity="0.10"/>
-        <stop offset="100%" stop-color="#1B4FD8" stop-opacity="0.03"/>
+        <stop offset="0%" stop-color="#1B4FD8" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="#1B4FD8" stop-opacity="0.02"/>
       </linearGradient>
     </defs>
     <polygon points="${upperPts} ${lowerPts}" fill="url(#bandGrad)" stroke="none"/>
     <polyline points="${linePts}"
-      fill="none" stroke="#1B4FD8" stroke-width="2"
+      fill="none" stroke="#1B4FD8" stroke-width="1.8"
       stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="${scaleX(peakIdx)}" cy="${scaleY(peak)}" r="4" fill="#1B4FD8"/>`;
+    <circle cx="${scaleX(peakIdx).toFixed(1)}" cy="${scaleY(peak).toFixed(1)}" r="4" fill="#1B4FD8"/>`;
 
   // Peak annotation
-  const ann = document.getElementById('peakAnnotation');
+  const ann  = document.getElementById('peakAnnotation');
   const pctX = (peakIdx / (loads.length - 1)) * 100;
   ann.style.display = 'block';
-  ann.style.left    = Math.min(pctX, 80) + '%';
-  ann.style.top     = '8%';
+  ann.style.left    = Math.min(pctX, 78) + '%';
+  ann.style.top     = '6%';
   ann.textContent   = `Peak · ${fmt(peak)} MW · ${fc[peakIdx].datetime.slice(11)}`;
 
-  // Hover tooltip on SVG
-  const plotEl = document.getElementById('fcPlot');
-  const tip    = document.getElementById('chartTooltip');
-
-  plotEl.addEventListener('mousemove', e => {
-    const rect = plotEl.getBoundingClientRect();
-    const pct  = (e.clientX - rect.left) / rect.width;
-    const idx  = Math.min(Math.floor(pct * fc.length), fc.length - 1);
-    if (idx < 0) return;
-    const row  = fc[idx];
-    tip.style.display = 'block';
-    tip.style.left    = (e.clientX + 12) + 'px';
-    tip.style.top     = (e.clientY - 50) + 'px';
-    tip.innerHTML     = `
-      <div style="font-size:10px;margin-bottom:4px;color:#9CA3AF">${row.datetime} IST</div>
-      <div class="tooltip-row">
-        <div class="tooltip-dot" style="background:#1B4FD8"></div>
-        XGBoost: ${fmt(row.load_mw)} MW
-      </div>`;
-  });
-  plotEl.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  // Tooltip — attach once, always reads currentFc so it stays fresh after horizon switch
+  if (!chartListenersAttached) {
+    const tip = document.getElementById('chartTooltip');
+    plotEl.addEventListener('mousemove', e => {
+      if (!currentFc) return;
+      const r   = plotEl.getBoundingClientRect();
+      const pct = (e.clientX - r.left) / r.width;
+      const idx = Math.min(Math.max(Math.floor(pct * currentFc.length), 0), currentFc.length - 1);
+      const row = currentFc[idx];
+      tip.style.display = 'block';
+      tip.style.left    = (e.clientX + 14) + 'px';
+      tip.style.top     = (e.clientY - 52) + 'px';
+      tip.innerHTML     = `
+        <div style="font-size:10px;margin-bottom:4px;color:#9CA3AF">${row.datetime} IST</div>
+        <div class="tooltip-row">
+          <div class="tooltip-dot" style="background:#1B4FD8"></div>
+          XGBoost: ${fmt(row.load_mw)} MW
+        </div>`;
+    });
+    plotEl.addEventListener('mouseleave', () => {
+      document.getElementById('chartTooltip').style.display = 'none';
+    });
+    chartListenersAttached = true;
+  }
 }
 
 // ── Heatmap — real residuals from API, static fallback ────────────────────────
@@ -963,34 +1090,24 @@ function exportCSV() {
   const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
-  a.download = `nrldc_forecast_${forecastData.generated_at.slice(0,10)}.csv`;
+  a.download = `nrldc_forecast_${activeHorizon}_${forecastData.generated_at.slice(0,10)}.csv`;
   a.click();
 }
 
-function setupNavTabs() {
-  const tabs = document.querySelectorAll('.nav-tab');
-  const views = {
-    forecast: 'view-forecast',
-    analysis: 'view-analysis',
-    models: 'view-models',
-    reports: 'view-reports'
-  };
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset.view;
-      const targetViewId = views[target];
-      if (!targetViewId) return;
-
-      tabs.forEach(item => item.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-
-      tab.classList.add('active');
-      const targetView = document.getElementById(targetViewId);
-      if (targetView) targetView.classList.add('active');
-    });
-  });
-}
+// ── Resize — redraw chart if window resizes ───────────────────────────────────
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (forecastData) {
+      const fc      = forecastData.forecast;
+      const loads   = fc.map(r => r.load_mw);
+      const peak    = Math.max(...loads);
+      const peakIdx = loads.indexOf(peak);
+      drawForecastChart(fc, peak, peakIdx);
+    }
+  }, 150);
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 setupNavTabs();

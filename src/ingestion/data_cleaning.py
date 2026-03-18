@@ -21,21 +21,22 @@ Usage:
 """
 
 import os
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-INPUT_PATH   = PROJECT_ROOT / "data" / "extracted" / "nrldc_extracted.parquet"
-OUTPUT_DIR   = PROJECT_ROOT / "data" / "cleaned"
-OUTPUT_PATH  = OUTPUT_DIR / "nrldc_cleaned.parquet"
+INPUT_PATH = PROJECT_ROOT / "data" / "extracted" / "nrldc_extracted.parquet"
+OUTPUT_DIR = PROJECT_ROOT / "data" / "cleaned"
+OUTPUT_PATH = OUTPUT_DIR / "nrldc_cleaned.parquet"
 
 # ── Physical constants for NRLDC North Region ─────────────────────────────────
-STEP_THRESHOLD = 5_000   # MW — impossible to change this fast in 15 min
-LOW_BOUND      = 25_000  # MW — grid never goes below this
-HIGH_BOUND     = 95_000  # MW — grid never goes above this
-LARGE_SPIKE    = 10_000  # MW — for these, null neighbours too
+STEP_THRESHOLD = 5_000  # MW — impossible to change this fast in 15 min
+LOW_BOUND = 25_000  # MW — grid never goes below this
+HIGH_BOUND = 95_000  # MW — grid never goes above this
+LARGE_SPIKE = 10_000  # MW — for these, null neighbours too
 
 
 # ── Step 1: Load & build datetime index ───────────────────────────────────────
@@ -49,11 +50,7 @@ def load_dataset(path):
     df["datetime"] = pd.to_datetime(
         df["date"].astype(str) + " " + df["timestamp"].str.split(" - ").str[0]
     )
-    df = (
-        df.set_index("datetime")
-          .drop(columns=["date", "timestamp"])
-          .sort_index()
-    )
+    df = df.set_index("datetime").drop(columns=["date", "timestamp"]).sort_index()
 
     # Drop any duplicate timestamps — keep last (most recently scraped wins)
     dupes = df.index.duplicated(keep="last").sum()
@@ -76,17 +73,26 @@ def detect_bad_points(series):
     """
     diff = series.diff().abs()
 
-    step_mask  = diff > STEP_THRESHOLD
+    step_mask = diff > STEP_THRESHOLD
     range_mask = (series < LOW_BOUND) | (series > HIGH_BOUND)
-    base_mask  = step_mask | range_mask
+    base_mask = step_mask | range_mask
 
     # Expand neighbours only for very large spikes
     large_mask = diff > LARGE_SPIKE
-    expanded   = large_mask | large_mask.shift(1).fillna(False) | large_mask.shift(-1).fillna(False)
+    expanded = (
+        large_mask
+        | large_mask.shift(1).fillna(False)
+        | large_mask.shift(-1).fillna(False)
+    )
 
     final_mask = base_mask | expanded
 
-    return final_mask, step_mask.sum(), range_mask.sum(), expanded.sum() - large_mask.sum()
+    return (
+        final_mask,
+        step_mask.sum(),
+        range_mask.sum(),
+        expanded.sum() - large_mask.sum(),
+    )
 
 
 # ── Step 3: Repair via interpolation ─────────────────────────────────────────
@@ -98,7 +104,9 @@ def repair(df, bad_mask):
     df_clean = df.copy()
     df_clean.loc[bad_mask, "actual_demand_mw"] = np.nan
 
-    df_clean["actual_demand_mw"] = df_clean["actual_demand_mw"].interpolate(method="time")
+    df_clean["actual_demand_mw"] = df_clean["actual_demand_mw"].interpolate(
+        method="time"
+    )
 
     remaining_nulls = df_clean["actual_demand_mw"].isna().sum()
     return df_clean, remaining_nulls
@@ -110,17 +118,19 @@ def verify(df_clean):
     Re-runs detection on cleaned data. Prints a warning if anything remains.
     Should always be zero after interpolation unless there are edge-of-series gaps.
     """
-    diff       = df_clean["actual_demand_mw"].diff().abs()
+    diff = df_clean["actual_demand_mw"].diff().abs()
     still_step = (diff > STEP_THRESHOLD).sum()
     still_range = (
-        (df_clean["actual_demand_mw"] < LOW_BOUND) |
-        (df_clean["actual_demand_mw"] > HIGH_BOUND)
+        (df_clean["actual_demand_mw"] < LOW_BOUND)
+        | (df_clean["actual_demand_mw"] > HIGH_BOUND)
     ).sum()
 
     if still_step == 0 and still_range == 0:
         print("  [OK]  No bad points remain after cleaning.")
     else:
-        print(f"  [WARN] Still has {still_step} step-spikes and {still_range} out-of-range values.")
+        print(
+            f"  [WARN] Still has {still_step} step-spikes and {still_range} out-of-range values."
+        )
         print("         These are likely at series edges — inspect manually.")
 
 
@@ -135,8 +145,10 @@ if __name__ == "__main__":
     df = load_dataset(INPUT_PATH)
     print(f"      Rows : {len(df):,}")
     print(f"      Range: {df.index[0]}  →  {df.index[-1]}")
-    print(f"      MW   : min={df['actual_demand_mw'].min():,.0f}  "
-          f"max={df['actual_demand_mw'].max():,.0f}")
+    print(
+        f"      MW   : min={df['actual_demand_mw'].min():,.0f}  "
+        f"max={df['actual_demand_mw'].max():,.0f}"
+    )
 
     # Detect
     print(f"\n[2/4] Detecting bad points...")
@@ -163,8 +175,10 @@ if __name__ == "__main__":
     df_clean.to_parquet(OUTPUT_PATH, engine="pyarrow", index=True)
     print(f"\n      Saved: data/cleaned/nrldc_cleaned.parquet")
     print(f"      Final rows : {len(df_clean):,}")
-    print(f"      Final MW   : min={df_clean['actual_demand_mw'].min():,.0f}  "
-          f"max={df_clean['actual_demand_mw'].max():,.0f}")
+    print(
+        f"      Final MW   : min={df_clean['actual_demand_mw'].min():,.0f}  "
+        f"max={df_clean['actual_demand_mw'].max():,.0f}"
+    )
 
     print("\n" + "=" * 55)
     print("Cleaning complete.")
