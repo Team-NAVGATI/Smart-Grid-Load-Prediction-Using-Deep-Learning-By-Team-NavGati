@@ -1,8 +1,10 @@
-# GridCast — Smart Grid Load Prediction (Team NavGati)
+#  GridCast — Smart Grid Load Prediction (Team NavGati)
 
 Production-oriented electricity load forecasting system for smart grids using a **data pipeline + XGBoost model + Flask API + dashboard frontend**.
 
 ---
+<img width="1920" height="1531" alt="image" src="https://github.com/user-attachments/assets/ec446b6a-37fd-4e59-ad23-544d84ec0da1" />
+
 
 ## Table of Contents
 
@@ -582,4 +584,4 @@ Then open dashboard:
 
 ---
 
-If you want, a second version of this README can be generated as a **GitHub landing-page variant** (shorter executive narrative at top + collapsible technical appendices).
+
