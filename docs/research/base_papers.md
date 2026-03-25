@@ -80,11 +80,11 @@ Purpose: Reduce prediction error and improve model efficiency.
 
 ```mermaid
 flowchart TD
-		A[Energy Data\n(IoT / Smart Meters)] --> B[Data Preprocessing]
-		B --> C[Deep Learning Model\n(SCon-BGAN)]
-		C --> D[Optimization\n(HDSO)]
-		D --> E[Load Prediction]
-		E --> F[Energy Management Decisions]
+    A["Energy Data<br/>(IoT / Smart Meters)"] --> B["Data Preprocessing"]
+    B --> C["Deep Learning Model<br/>(SCon-BGAN)"]
+    C --> D["Optimization<br/>(HDSO)"]
+    D --> E["Load Prediction"]
+    E --> F["Energy Management Decisions"]
 ```
 
 ---

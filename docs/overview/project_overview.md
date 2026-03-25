@@ -77,14 +77,14 @@ This approach ensures:
 
 ```mermaid
 flowchart TD
-		A[NRLDC Data Source] --> B[Scraping Layer]
-		B --> C[Data Extraction and Merging]
-		C --> D[Data Cleaning and Validation]
-		D --> E[Feature Engineering]
-		E --> F[Model Training (XGBoost)]
-		F --> G[Model Artifacts Storage]
-		G --> H[Flask API]
-		H --> I[Dashboard Visualization]
+		A["NRLDC Data Source"] --> B["Scraping Layer"]
+		B --> C["Data Extraction and Merging"]
+		C --> D["Data Cleaning and Validation"]
+		D --> E["Feature Engineering"]
+		E --> F["Model Training (XGBoost)"]
+		F --> G["Model Artifacts Storage"]
+		G --> H["Flask API"]
+		H --> I["Dashboard Visualization"]
 ```
 
 ---

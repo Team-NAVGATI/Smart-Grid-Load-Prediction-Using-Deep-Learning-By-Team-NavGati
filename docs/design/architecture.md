@@ -18,7 +18,7 @@ This ensures scalability, maintainability, and ease of extension.
 
 ```mermaid
 flowchart LR
-	A[Government Data Source\n(NRLDC Portal)]
+	A["Government Data Source<br/>(NRLDC Portal)"]
 	B[Data Ingestion Layer]
 	C[Data Processing Layer]
 	D[Feature Engineering Layer]
@@ -172,7 +172,7 @@ Designed for operational decision support.
 
 ```mermaid
 flowchart TD
-	A[Raw Data\nExcel Files] --> B[Extraction]
+	A["Raw Data<br/>Excel Files"] --> B[Extraction]
 	B --> C[Cleaning]
 	C --> D[Feature Engineering]
 	D --> E[Model Training]
