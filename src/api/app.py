@@ -32,7 +32,7 @@ from flask_cors import CORS
 # ── Paths ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MODEL_PATH = PROJECT_ROOT / "data" / "model" / "xgboost_model.joblib"
-BUFFER_PATH = PROJECT_ROOT / "data" / "model" / "buffer.json"
+BUFFER_PATH = PROJECT_ROOT / "data" / "model" / "xgboost" / "buffer.json"
 
 # ── Constants (must match train_and_save.py exactly) ──────────────────────────
 BUFFER_LEN = 672  # 1 week of 15-min steps
