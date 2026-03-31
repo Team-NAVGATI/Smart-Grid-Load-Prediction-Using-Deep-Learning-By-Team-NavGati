@@ -39,7 +39,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 INPUT_PATH = PROJECT_ROOT / "data" / "cleaned" / "nrldc_cleaned.parquet"
 MODEL_DIR = PROJECT_ROOT / "data" / "model"
 MODEL_PATH = MODEL_DIR / "xgboost_model.joblib"
-BUFFER_PATH = MODEL_DIR / "buffer.json"
+BUFFER_PATH = MODEL_DIR / "xgboost" / "buffer.json"
 
 # ── Constants (must match app.py exactly) ─────────────────────────────────────
 BUFFER_LEN = 672  # 1 week of 15-min steps — needed for lag672
@@ -415,6 +415,7 @@ if __name__ == "__main__":
     # ── 6. Save ───────────────────────────────────────────────────────────────
     print(f"\n[6/6] Saving model and buffer...")
     os.makedirs(MODEL_DIR, exist_ok=True)
+    os.makedirs(BUFFER_PATH.parent, exist_ok=True)
 
     joblib.dump(model, MODEL_PATH)
     print(f"      Saved model : data/model/xgboost_model.joblib")
@@ -455,7 +456,7 @@ if __name__ == "__main__":
     with open(BUFFER_PATH, "w") as f:
         json.dump(buffer_payload, f, indent=2)
 
-    print(f"      Saved buffer: data/model/buffer.json")
+    print(f"      Saved buffer: data/model/xgboost/buffer.json")
     print(
         f"        ↳ last {BUFFER_LEN} actual values  ({BUFFER_LEN * 15 // 60}h history)"
     )
