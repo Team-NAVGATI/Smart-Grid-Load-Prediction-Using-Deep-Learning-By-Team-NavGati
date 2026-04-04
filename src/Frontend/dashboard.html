@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grid Load Forecast — GridCast</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Red+Hat+Display:wght@500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,10 +16,10 @@
     --text-primary: #111827;
     --text-secondary: #64748b;
     --text-tertiary: #94a3b8;
-    --accent: #4c79b8;
+    --accent: #003d99;
     --accent-light: #f0f4fb;
-    --accent-muted: #6b91c7;
-    --glow-cyan: #00e5ff;
+    --accent-muted: #1a5fb8;
+    --glow-cyan: #0F9E90;
     --green: #00e676;
     --green-bg: rgba(0,230,118,0.14);
     --amber: #ffab00;
@@ -47,7 +47,7 @@
   .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .wf-pill { height: 28px; border-radius: 6px; background: var(--wf-fill); display: inline-flex; align-items: center; padding: 0 12px; font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .wf-pill.sm { padding: 0 9px; height: 24px; }
-  .wf-pill.accent { background: var(--accent); color: #ffffff; cursor: pointer; box-shadow: 0 0 0 1px rgba(42,95,179,.15), 0 0 6px rgba(0,229,255,.09); }
+  .wf-pill.accent { background: var(--accent); color: #ffffff; cursor: pointer; box-shadow: 0 0 0 1px rgba(0,61,153,.15), 0 0 6px rgba(15,158,144,.09); }
   .wf-pill.live::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 5px; animation: blink 2s infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   @keyframes brandPulse { 0%,100%{opacity:1} 50%{opacity:.45} }
@@ -86,7 +86,7 @@
 
   /* PAGE HEADER */
   .page-header { display: flex; align-items: center; justify-content: space-between; }
-  .page-title { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
+  .page-title { font-size: 17px; font-weight: 900; font-family: 'Red Hat Display', sans-serif; letter-spacing: -.3px; }
   .page-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
   .header-controls { display: flex; gap: 8px; align-items: center; }
 
@@ -134,14 +134,14 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
   .legend-line { width: 20px; height: 2px; border-radius: 2px; }
   .legend-band { width: 20px; height: 10px; border-radius: 3px; opacity: .35; }
-  .now-line { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--accent); box-shadow: 0 0 4px rgba(0,229,255,.14); pointer-events: none; }
+  .now-line { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--accent); box-shadow: 0 0 4px rgba(0,61,153,.14); pointer-events: none; }
   .now-label { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: var(--accent); white-space: nowrap; letter-spacing: .06em; text-transform: uppercase; }
   .annotation { position: absolute; background: #fff9ea; border: 1px solid rgba(255,171,0,.35); border-radius: 6px; padding: 4px 8px; font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 500; color: #8a5a00; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 
   /* HORIZON TOGGLE BUTTONS */
   .horizon-btn { height: 26px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
   .horizon-btn:hover { border-color: var(--accent-muted); color: var(--accent); }
-  .horizon-btn.active { background: var(--accent); border-color: var(--accent); color: #ffffff; box-shadow: 0 0 0 1px rgba(42,95,179,.14), 0 0 5px rgba(0,229,255,.1); }
+  .horizon-btn.active { background: var(--accent); border-color: var(--accent); color: #ffffff; box-shadow: 0 0 0 1px rgba(0,61,153,.14), 0 0 5px rgba(15,158,144,.1); }
 
   /* TOOLTIP */
   .chart-tooltip { position: absolute; background: #0f1b2f; color: var(--text-primary); padding: 7px 10px; border-radius: 7px; font-size: 11px; pointer-events: none; display: none; z-index: 10; white-space: nowrap; border: 1px solid var(--border); }
