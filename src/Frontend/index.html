@@ -4,46 +4,63 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GridCast - Smart Grid Load Prediction</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Red+Hat+Display:wght@500;600;700;800;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --bg: #050b14;
-  --bg2: #080f1c;
-  --bg3: #0c1628;
-  --cyan: #00e5ff;
-  --cyan2: #00b8d9;
+  --bg: #ffffff;
+  --bg2: #f8faff;
+  --bg3: #f0f4ff;
+  --cyan: #0F9E90;
+  --cyan2: #0C7F74;
   --amber: #ffab00;
   --green: #00e676;
   --red: #ff1744;
-  --text: #e8edf5;
-  --muted: #6b7a96;
-  --border: rgba(0,229,255,0.12);
-  --card: rgba(12,22,40,0.85);
+  --text: #003d99;
+  --muted: #4a5a7a;
+  --border: rgba(0,102,204,0.15);
+  --card: rgba(240,244,255,0.6);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
-  background:var(--bg);
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(0,61,153,0.09), transparent 62%),
+    radial-gradient(760px 420px at 92% 8%, rgba(15,158,144,0.10), transparent 60%),
+    linear-gradient(180deg, #ffffff 0%, #f7fbff 55%, #f4f9ff 100%);
   color:var(--text);
   font-family:'DM Sans',sans-serif;
   overflow-x:hidden;
+  box-shadow:inset 0 0 200px rgba(0,102,204,0.08);
 }
 
 body::before{
   content:'';
   position:fixed;
   inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
   pointer-events:none;
   z-index:0;
-  opacity:.5;
+  opacity:.3;
+}
+
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(520px 300px at 20% 24%, rgba(0,102,204,0.10), transparent 70%),
+    radial-gradient(480px 260px at 78% 18%, rgba(15,158,144,0.10), transparent 72%),
+    radial-gradient(620px 340px at 50% 78%, rgba(255,171,0,0.07), transparent 75%);
+  pointer-events:none;
+  z-index:0;
+  opacity:.75;
 }
 
 nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
   padding:1.2rem 3rem;
-  background:rgba(5,11,20,.85);
+  background:rgba(255,255,255,.9);
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
 }
@@ -57,7 +74,7 @@ nav{
 .logo-dot{width:8px;height:8px;background:var(--amber);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
 .nav-links{display:flex;gap:2.5rem;list-style:none;}
 .nav-links a{
-  color:var(--muted);text-decoration:none;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;transition:all .2s;position:relative;
+  color:var(--text);text-decoration:none;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;transition:all .2s;position:relative;
 }
 .nav-links a:hover{
   color:var(--cyan);
@@ -69,7 +86,7 @@ nav{
   transform:scaleX(1);
 }
 .nav-cta{
-  background:transparent;border:1px solid var(--cyan);
+  background:transparent;border:2px solid var(--cyan);
   color:var(--cyan);padding:.55rem 1.4rem;
   font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;
   transition:all .2s;letter-spacing:.05em;
@@ -91,28 +108,28 @@ nav{
 }
 .eyebrow-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
 h1{
-  font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);
-  font-weight:800;line-height:1.0;letter-spacing:-0.03em;
+  font-family:'Red Hat Display',sans-serif;font-size:clamp(2.3rem,6vw,4.8rem);
+  font-weight:900;line-height:.96;letter-spacing:-0.03em;
   margin-bottom:1.5rem;
 }
 h1 .accent{color:var(--cyan);position:relative;}
 h1 .accent::after{
   content:'';position:absolute;left:0;bottom:-4px;right:0;
-  height:2px;background:var(--cyan);transform:scaleX(0);transform-origin:left;
+  height:3px;background:var(--cyan);transform:scaleX(0);transform-origin:left;
   animation:underline-grow 1s .8s cubic-bezier(.4,0,.2,1) forwards;
 }
 .hero-sub{
-  font-size:0.95rem;color:var(--muted);line-height:1.7;
+  font-size:0.95rem;color:#555;line-height:1.7;
   max-width:520px;margin-bottom:2.5rem;
 }
 .hero-actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
 .btn-primary{
   background:var(--cyan);color:var(--bg);
-  padding:.85rem 2rem;font-family:'Syne',sans-serif;
-  font-weight:700;font-size:.95rem;border:none;cursor:pointer;
-  letter-spacing:.03em;transition:all .2s;box-shadow:0 4px 12px rgba(0,229,255,.2);
+  padding:.85rem 2rem;font-family:'Red Hat Display',sans-serif;
+  font-weight:900;font-size:.95rem;border:2px solid var(--cyan);cursor:pointer;
+  letter-spacing:.03em;transition:all .2s;box-shadow:0 4px 12px rgba(15,158,144,.25);
 }
-.btn-primary:hover{background:var(--cyan2);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,229,255,.3);}
+.btn-primary:hover{background:var(--cyan2);transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,158,144,.3);}
 .btn-ghost{
   color:var(--text);text-decoration:none;
   font-size:.9rem;display:flex;align-items:center;gap:.5rem;
@@ -128,7 +145,7 @@ h1 .accent::after{
   font-family:'Space Mono',monospace;font-size:2rem;
   font-weight:700;color:var(--cyan);
 }
-.stat-label{font-size:.8rem;color:var(--muted);margin-top:.2rem;letter-spacing:.05em;}
+.stat-label{font-size:.8rem;color:#666;margin-top:.2rem;letter-spacing:.05em;}
 
 .hero-visual{
   position:absolute;right:-2rem;top:44%;transform:translateY(-50%);
@@ -142,11 +159,11 @@ section{position:relative;z-index:1;}
   margin-bottom:1rem;opacity:.9;font-weight:500;
 }
 .section-title{
-  font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.2rem);
-  font-weight:800;line-height:1.1;letter-spacing:-.02em;
+  font-family:'Red Hat Display',sans-serif;font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:900;line-height:1.1;letter-spacing:-.02em;
   margin-bottom:1.5rem;
 }
-.section-body{font-size:1.05rem;color:var(--muted);line-height:1.8;max-width:560px;}
+.section-body{font-size:1.05rem;color:#555;line-height:1.8;max-width:560px;}
 
 #what-grid{
   padding:7rem 3rem;
@@ -170,15 +187,17 @@ section{position:relative;z-index:1;}
 .node{
   aspect-ratio:1;display:flex;align-items:center;justify-content:center;
   font-size:.55rem;font-family:'Space Mono',monospace;
-  border:1px solid;color:var(--muted);border-color:var(--border);
+  border:1px solid;color:#666;border-color:rgba(0,102,204,0.2);
   position:relative;transition:all .3s;
 }
-.node.active{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.2);}
+.node.active{border-color:var(--cyan);color:var(--cyan);border-width:2px;box-shadow:0 0 8px rgba(15,158,144,.3);}
 .node.warn{border-color:var(--amber);color:var(--amber);box-shadow:0 0 12px rgba(255,171,0,.2);}
 .node.crit{border-color:var(--red);color:var(--red);animation:blink .8s ease-in-out infinite;}
 .grid-legend{display:flex;gap:1.5rem;margin-top:1.5rem;font-size:.7rem;font-family:'Space Mono',monospace;}
 .leg{display:flex;align-items:center;gap:.4rem;}
 .leg-dot{width:8px;height:8px;border-radius:50%;}
+
+.leg-label{font-size:.7rem;color:#666;}
 
 #problem{
   padding:7rem 3rem;
@@ -193,7 +212,7 @@ section{position:relative;z-index:1;}
   padding:2rem;position:relative;overflow:hidden;
   transition:all .3s cubic-bezier(.4,0,.2,1);
 }
-.problem-card:hover{border-color:rgba(0,229,255,.35);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,229,255,.1);}
+.problem-card:hover{border-color:rgba(15,158,144,.35);transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,158,144,.1);}
 .problem-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--amber),transparent);
@@ -209,12 +228,12 @@ section{position:relative;z-index:1;}
   font-weight:700;display:flex;align-items:center;justify-content:center;
   margin-bottom:1rem;background:rgba(255,171,0,.06);border-radius:2px;transition:all .3s;
 }
-.problem-card:hover .problem-icon{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.08);}
-.problem-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:.6rem;}
-.problem-desc{font-size:.9rem;color:var(--muted);line-height:1.6;}
+.problem-card:hover .problem-icon{border-color:var(--cyan);color:var(--cyan);background:rgba(15,158,144,.08);}
+.problem-title{font-family:'Red Hat Display',sans-serif;font-weight:900;font-size:1.1rem;margin-bottom:.6rem;}
+.problem-desc{font-size:.9rem;color:#555;line-height:1.6;}
 .problem-stat{
   margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border);
-  font-family:'Space Mono',monospace;font-size:.75rem;color:var(--amber);
+  font-family:'Space Mono',monospace;font-size:.75rem;color:#ff8f00;
 }
 
 #how{
@@ -236,21 +255,21 @@ section{position:relative;z-index:1;}
   text-align:center;padding:0 .5rem;position:relative;z-index:1;
 }
 .step-icon{
-  width:56px;height:56px;border:1px solid var(--cyan);
+  width:56px;height:56px;border:2px solid var(--cyan);
   display:flex;align-items:center;justify-content:center;
-  background:var(--bg);font-size:.8rem;margin-bottom:1rem;
+  background:#f8faff;font-size:.8rem;margin-bottom:1rem;
   position:relative;color:var(--cyan);font-family:'Space Mono',monospace;
   letter-spacing:.08em;font-weight:700;
 }
 .step-icon::after{
-  content:'';position:absolute;inset:-3px;border:1px solid rgba(0,229,255,.2);
+  content:'';position:absolute;inset:-3px;border:1px solid rgba(15,158,144,.2);
 }
 .step-num{
   font-family:'Space Mono',monospace;font-size:.6rem;
   color:var(--cyan);letter-spacing:.1em;margin-bottom:.4rem;
 }
-.step-name{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:.3rem;}
-.step-desc{font-size:.72rem;color:var(--muted);line-height:1.5;}
+.step-name{font-family:'Red Hat Display',sans-serif;font-size:.8rem;font-weight:900;margin-bottom:.3rem;}
+.step-desc{font-size:.72rem;color:#666;line-height:1.5;}
 
 #demo{
   padding:7rem 3rem;
@@ -267,13 +286,13 @@ section{position:relative;z-index:1;}
   width:34px;height:34px;border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   font-family:'Space Mono',monospace;font-size:.6rem;
-  color:var(--muted);background:rgba(255,255,255,.01);
+  color:#999;background:#f8faff;
 }
 .kpi-val{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;}
 .kpi-val.cyan{color:var(--cyan);}
 .kpi-val.amber{color:var(--amber);}
 .kpi-val.green{color:var(--green);}
-.kpi-label{font-size:.78rem;color:var(--muted);letter-spacing:.05em;}
+.kpi-label{font-size:.78rem;color:#666;letter-spacing:.05em;}
 .demo-chart-wrap{
   background:var(--card);border:1px solid var(--border);
   padding:2rem;
@@ -300,18 +319,18 @@ section{position:relative;z-index:1;}
   padding:2.5rem 1.5rem;
   border:1px solid var(--border);
   text-align:center;position:relative;overflow:hidden;
-  transition:all .3s cubic-bezier(.4,0,.2,1);background:rgba(0,229,255,.02);
+  transition:all .3s cubic-bezier(.4,0,.2,1);background:rgba(15,158,144,.02);
 }
-.impact-card:hover{border-color:var(--cyan);transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,229,255,.12);}
+.impact-card:hover{border-color:var(--cyan);transform:translateY(-4px);box-shadow:0 8px 24px rgba(15,158,144,.12);}
 .impact-card::after{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 100%,rgba(0,229,255,.06),transparent 70%);
+  background:radial-gradient(ellipse at 50% 100%,rgba(15,158,144,.06),transparent 70%);
 }
 .impact-val{
   font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;
   color:var(--cyan);line-height:1;margin-bottom:.5rem;
 }
-.impact-label{font-size:.85rem;color:var(--muted);line-height:1.5;}
+.impact-label{font-size:.85rem;color:#555;line-height:1.5;}
 .impact-sub{font-size:.75rem;color:rgba(107,122,150,.6);margin-top:.5rem;font-family:'Space Mono',monospace;}
 
 #tech{
@@ -326,14 +345,14 @@ section{position:relative;z-index:1;}
   padding:1.8rem;display:flex;gap:1rem;align-items:flex-start;
   transition:all .3s cubic-bezier(.4,0,.2,1);
 }
-.tech-card:hover{border-color:rgba(0,229,255,.3);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,229,255,.08);}
+.tech-card:hover{border-color:rgba(15,158,144,.3);transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,158,144,.08);}
 .tech-glyph{
   width:40px;height:40px;border:2px solid var(--cyan);
   color:var(--cyan);display:flex;align-items:center;justify-content:center;
-  font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;background:rgba(0,229,255,.04);flex-shrink:0;border-radius:2px;
+  font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;background:rgba(15,158,144,.08);flex-shrink:0;border-radius:2px;
 }
-.tech-name{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:.3rem;}
-.tech-desc{font-size:.85rem;color:var(--muted);line-height:1.5;}
+.tech-name{font-family:'Red Hat Display',sans-serif;font-weight:900;margin-bottom:.3rem;}
+.tech-desc{font-size:.85rem;color:#555;line-height:1.5;}
 
 #cta{
   padding:8rem 3rem;
@@ -345,12 +364,12 @@ section{position:relative;z-index:1;}
   content:'';position:absolute;
   top:50%;left:50%;transform:translate(-50%,-50%);
   width:600px;height:300px;
-  background:radial-gradient(ellipse,rgba(0,229,255,.06) 0%,transparent 70%);
+  background:radial-gradient(ellipse,rgba(15,158,144,.06) 0%,transparent 70%);
   pointer-events:none;
 }
 #cta .section-title{max-width:700px;margin:1rem auto 2rem;}
 .cta-buttons{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
-.cta-sub{color:var(--muted);font-size:.85rem;margin-top:1.5rem;font-family:'Space Mono',monospace;}
+.cta-sub{color:#666;font-size:.85rem;margin-top:1.5rem;font-family:'Space Mono',monospace;}
 
 .road-dot{
   width:32px;height:32px;border-radius:0;display:flex;align-items:center;justify-content:center;
@@ -363,7 +382,7 @@ section{position:relative;z-index:1;}
 footer{
   padding:3rem;border-top:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
-  font-size:.8rem;color:var(--muted);font-family:'Space Mono',monospace;background:rgba(5,11,20,.5);
+  font-size:.8rem;color:#666;font-family:'Space Mono',monospace;background:rgba(240,244,255,.5);
 }
 
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
@@ -410,12 +429,12 @@ footer{
     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
       <defs>
         <pattern id="grid-pat" width="60" height="60" patternUnits="userSpaceOnUse">
-          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(0,229,255,0.04)" stroke-width="1"/>
+          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(15,158,144,0.04)" stroke-width="1"/>
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#grid-pat)"/>
       <radialGradient id="hglow" cx="30%" cy="60%" r="50%">
-        <stop offset="0%" stop-color="rgba(0,229,255,0.08)"/>
+        <stop offset="0%" stop-color="rgba(15,158,144,0.08)"/>
         <stop offset="100%" stop-color="transparent"/>
       </radialGradient>
       <rect width="100%" height="100%" fill="url(#hglow)"/>
@@ -426,25 +445,25 @@ footer{
     <svg width="580" height="420" viewBox="0 0 580 420" xmlns="http://www.w3.org/2000/svg" id="hero-svg">
       <defs>
         <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(0,229,255,0.3)"/>
-          <stop offset="100%" stop-color="rgba(0,229,255,0)"/>
+          <stop offset="0%" stop-color="rgba(15,158,144,0.3)"/>
+          <stop offset="100%" stop-color="rgba(15,158,144,0)"/>
         </linearGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
           <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
-      <line x1="40" y1="380" x2="560" y2="380" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
-      <line x1="40" y1="20" x2="40" y2="380" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
-      <line x1="40" y1="280" x2="560" y2="280" stroke="rgba(0,229,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="40" y1="180" x2="560" y2="180" stroke="rgba(0,229,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="40" y1="80" x2="560" y2="80" stroke="rgba(0,229,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="40" y1="380" x2="560" y2="380" stroke="rgba(15,158,144,0.2)" stroke-width="1"/>
+      <line x1="40" y1="20" x2="40" y2="380" stroke="rgba(15,158,144,0.2)" stroke-width="1"/>
+      <line x1="40" y1="280" x2="560" y2="280" stroke="rgba(15,158,144,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="40" y1="180" x2="560" y2="180" stroke="rgba(15,158,144,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="40" y1="80" x2="560" y2="80" stroke="rgba(15,158,144,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
       <text x="35" y="284" fill="rgba(107,122,150,0.7)" font-size="10" font-family="Space Mono" text-anchor="end">55K</text>
       <text x="35" y="184" fill="rgba(107,122,150,0.7)" font-size="10" font-family="Space Mono" text-anchor="end">70K</text>
       <text x="35" y="84" fill="rgba(107,122,150,0.7)" font-size="10" font-family="Space Mono" text-anchor="end">85K</text>
       <path d="M40,260 Q100,240 160,200 Q220,160 280,140 Q340,120 400,145 Q460,165 560,180
                L560,210 Q460,195 400,175 Q340,150 280,170 Q220,190 160,230 Q100,265 40,285Z"
-            fill="rgba(0,229,255,0.06)" stroke="none"/>
+            fill="rgba(15,158,144,0.06)" stroke="none"/>
       <path id="area-path" d="M40,270 Q100,250 160,210 Q220,170 280,155 Q340,135 400,160 Q460,180 560,195 L560,380 L40,380Z"
             fill="url(#wg)"/>
       <path id="forecast-line" d="M40,270 Q100,250 160,210 Q220,170 280,155 Q340,135 400,160 Q460,180 560,195"
@@ -462,8 +481,8 @@ footer{
       <circle cx="280" cy="155" r="3" fill="var(--cyan)"/>
       <circle cx="400" cy="160" r="3" fill="var(--cyan)"/>
       <circle cx="560" cy="195" r="3" fill="var(--cyan)" opacity=".5"/>
-      <line x1="400" y1="30" x2="400" y2="380" stroke="rgba(0,229,255,0.15)" stroke-width="1" stroke-dasharray="6,4"/>
-      <text x="405" y="45" fill="rgba(0,229,255,0.5)" font-size="9" font-family="Space Mono">FORECAST</text>
+      <line x1="400" y1="30" x2="400" y2="380" stroke="rgba(15,158,144,0.15)" stroke-width="1" stroke-dasharray="6,4"/>
+      <text x="405" y="45" fill="rgba(15,158,144,0.5)" font-size="9" font-family="Space Mono">FORECAST</text>
       <text x="40" y="396" fill="rgba(107,122,150,0.7)" font-size="9" font-family="Space Mono" text-anchor="middle">00:00</text>
       <text x="160" y="396" fill="rgba(107,122,150,0.7)" font-size="9" font-family="Space Mono" text-anchor="middle">06:00</text>
       <text x="280" y="396" fill="rgba(107,122,150,0.7)" font-size="9" font-family="Space Mono" text-anchor="middle">12:00</text>
@@ -544,7 +563,7 @@ footer{
             <span style="color:var(--muted);">CURRENT LOAD</span>
             <span style="color:var(--cyan);">78,420 MW</span>
           </div>
-          <div style="background:rgba(0,229,255,.08);height:6px;border-radius:0;overflow:hidden;">
+          <div style="background:rgba(15,158,144,.08);height:6px;border-radius:0;overflow:hidden;">
             <div style="background:linear-gradient(90deg,var(--green),var(--cyan));height:100%;width:82%;transition:width 1s;"></div>
           </div>
           <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:.6rem;margin-top:.3rem;color:var(--muted);">
@@ -601,9 +620,9 @@ footer{
         <div class="problem-desc">Aging transmission infrastructure operates near thermal limits. Unexpected load surges cause cascading failures that can take entire regions offline.</div>
         <div class="problem-stat">70% of global grid assets are over 25 years old</div>
       </div>
-      <div class="problem-card reveal" style="border-color:rgba(0,229,255,.2);">
+      <div class="problem-card reveal" style="border-color:rgba(15,158,144,.2);">
         <div class="problem-num">06</div>
-        <div class="problem-icon" style="border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.08);">GC</div>
+        <div class="problem-icon" style="border-color:var(--cyan);color:var(--cyan);background:rgba(15,158,144,.08);">GC</div>
         <div class="problem-title" style="color:var(--cyan);">GridCast Solves This</div>
         <div class="problem-desc" style="color:var(--text);">By combining a production-grade ML pipeline with operational diagnostics and real-time serving, GridCast closes the forecasting gap between research and operations.</div>
         <div class="problem-stat" style="color:var(--cyan);">96-step, 24h ahead forecast</div>
@@ -726,15 +745,15 @@ footer{
         <svg width="100%" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="rgba(0,229,255,0.25)"/>
-              <stop offset="100%" stop-color="rgba(0,229,255,0)"/>
+              <stop offset="0%" stop-color="rgba(15,158,144,0.25)"/>
+              <stop offset="100%" stop-color="rgba(15,158,144,0)"/>
             </linearGradient>
             <filter id="glow2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
-          <line x1="30" y1="40" x2="510" y2="40" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>
-          <line x1="30" y1="100" x2="510" y2="100" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>
-          <line x1="30" y1="160" x2="510" y2="160" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>
-          <line x1="30" y1="220" x2="510" y2="220" stroke="rgba(0,229,255,0.12)" stroke-width="1"/>
+          <line x1="30" y1="40" x2="510" y2="40" stroke="rgba(15,158,144,0.06)" stroke-width="1"/>
+          <line x1="30" y1="100" x2="510" y2="100" stroke="rgba(15,158,144,0.06)" stroke-width="1"/>
+          <line x1="30" y1="160" x2="510" y2="160" stroke="rgba(15,158,144,0.06)" stroke-width="1"/>
+          <line x1="30" y1="220" x2="510" y2="220" stroke="rgba(15,158,144,0.12)" stroke-width="1"/>
           <text x="25" y="44" fill="rgba(107,122,150,0.7)" font-size="8" font-family="Space Mono" text-anchor="end">90K</text>
           <text x="25" y="104" fill="rgba(107,122,150,0.7)" font-size="8" font-family="Space Mono" text-anchor="end">75K</text>
           <text x="25" y="164" fill="rgba(107,122,150,0.7)" font-size="8" font-family="Space Mono" text-anchor="end">60K</text>
@@ -742,7 +761,7 @@ footer{
                    L510,220 L30,220Z" fill="url(#dg)"/>
           <path d="M30,175 Q80,163 130,133 Q180,103 230,78 Q260,63 290,68 Q320,75 370,98 Q420,123 470,138 Q490,146 510,150
                    L510,174 Q490,170 470,162 Q420,147 370,122 Q320,99 290,92 Q260,87 230,102 Q180,127 130,157 Q80,187 30,197Z"
-                fill="rgba(0,229,255,0.07)"/>
+                fill="rgba(15,158,144,0.07)"/>
           <path d="M30,185 Q80,175 130,145 Q180,115 230,90 Q260,75 290,80 Q320,87 370,110 Q420,135 470,150 Q490,158 510,162"
                 fill="none" stroke="var(--cyan)" stroke-width="2"
                 stroke-dasharray="900" stroke-dashoffset="900" filter="url(#glow2)"
@@ -759,7 +778,7 @@ footer{
         </svg>
         <div style="display:flex;gap:1.5rem;margin-top:1rem;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);">
           <div style="display:flex;align-items:center;gap:.4rem;"><div style="width:20px;height:2px;background:var(--cyan);"></div>Forecast</div>
-          <div style="display:flex;align-items:center;gap:.4rem;"><div style="width:16px;height:8px;background:rgba(0,229,255,0.12);"></div>Confidence Band</div>
+          <div style="display:flex;align-items:center;gap:.4rem;"><div style="width:16px;height:8px;background:rgba(15,158,144,0.12);"></div>Confidence Band</div>
           <div style="display:flex;align-items:center;gap:.4rem;"><div style="width:6px;height:6px;background:var(--amber);border-radius:50%;"></div>Peak</div>
         </div>
       </div>
