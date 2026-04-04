@@ -33,6 +33,7 @@ jobs:
       - name: Flake8 Check (relaxed)
         run: flake8 . --max-line-length=100 --exclude=.venv,__pycache__,notebooks --ignore=F541,E203,F841,E402,E501,W503,E226
 
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
@@ -46,9 +47,15 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
-      - name: Install dependencies
+      # 🔥 USE LIGHTWEIGHT REQUIREMENTS
+      - name: Install dependencies (CI-safe)
         run: |
-          pip install -r requirements.txt
+          if [ -f requirements-ci.txt ]; then
+            pip install -r requirements-ci.txt
+          else
+            echo "requirements-ci.txt not found, installing minimal deps"
+            pip install numpy pandas scikit-learn
+          fi
           pip install pytest pytest-cov
 
       - name: Run tests (if available)
@@ -58,6 +65,7 @@ jobs:
           else
             echo "No tests folder found, skipping tests."
           fi
+
 
   build-check:
     name: Import & Build Check
@@ -72,8 +80,26 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      # SAME LIGHTWEIGHT INSTALL
+      - name: Install dependencies (CI-safe)
+        run: |
+          if [ -f requirements-ci.txt ]; then
+            pip install -r requirements-ci.txt
+          else
+            pip install numpy pandas scikit-learn
+          fi
 
       - name: Verify all modules import cleanly
-        run: python -c "import pkgutil, importlib, sys; sys.exit(0)"
+        run: |
+          python - <<EOF
+          import pkgutil
+          import importlib
+
+          for module in pkgutil.walk_packages(["src"]):
+              try:
+                  importlib.import_module(module.name)
+              except Exception as e:
+                  print(f"Failed to import {module.name}: {e}")
+                  raise
+          print("All modules imported successfully.")
+          EOF

@@ -5,8 +5,8 @@ Reads : data/cleaned/nrldc_cleaned.parquet
          (index: datetime 15-min, column: actual_demand_mw)
 
 Outputs:
-  data/model/xgboost_model.joblib   — trained XGBoost model
-  data/model/buffer.json            — last 672 values + metadata
+    data/model/xgboost/xgboost_model.joblib   — trained XGBoost model
+    data/model/xgboost/buffer.json            — last 672 values + metadata
                                       + horizon_metrics (24h/48h/72h backtest MAPE)
                                       + real residual heatmap (7×24)
 
@@ -35,11 +35,13 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from xgboost import XGBRegressor
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# __file__ = src/pipeline/xgboost/train_and_save_xgboost.py
+# Repo root is 4 levels up from this file.
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 INPUT_PATH = PROJECT_ROOT / "data" / "cleaned" / "nrldc_cleaned.parquet"
 MODEL_DIR = PROJECT_ROOT / "data" / "model"
-MODEL_PATH = MODEL_DIR / "xgboost_model.joblib"
-BUFFER_PATH = MODEL_DIR / "buffer.json"
+MODEL_PATH = MODEL_DIR / "xgboost" / "xgboost_model.joblib"
+BUFFER_PATH = MODEL_DIR / "xgboost" / "buffer.json"
 
 # ── Constants (must match app.py exactly) ─────────────────────────────────────
 BUFFER_LEN = 672  # 1 week of 15-min steps — needed for lag672
@@ -415,9 +417,11 @@ if __name__ == "__main__":
     # ── 6. Save ───────────────────────────────────────────────────────────────
     print(f"\n[6/6] Saving model and buffer...")
     os.makedirs(MODEL_DIR, exist_ok=True)
+    os.makedirs(MODEL_PATH.parent, exist_ok=True)
+    os.makedirs(BUFFER_PATH.parent, exist_ok=True)
 
     joblib.dump(model, MODEL_PATH)
-    print(f"      Saved model : data/model/xgboost_model.joblib")
+    print(f"      Saved model : data/model/xgboost/xgboost_model.joblib")
 
     buffer_payload = {
         "trained_at": run_start.isoformat(),
@@ -455,7 +459,7 @@ if __name__ == "__main__":
     with open(BUFFER_PATH, "w") as f:
         json.dump(buffer_payload, f, indent=2)
 
-    print(f"      Saved buffer: data/model/buffer.json")
+    print(f"      Saved buffer: data/model/xgboost/buffer.json")
     print(
         f"        ↳ last {BUFFER_LEN} actual values  ({BUFFER_LEN * 15 // 60}h history)"
     )

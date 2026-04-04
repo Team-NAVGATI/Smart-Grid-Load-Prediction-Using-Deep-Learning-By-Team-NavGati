@@ -13,3 +13,4 @@ flask-cors
 isort
 black
 pre-commit
+tensorflow
