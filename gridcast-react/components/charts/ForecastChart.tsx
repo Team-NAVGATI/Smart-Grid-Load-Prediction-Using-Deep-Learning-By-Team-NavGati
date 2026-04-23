@@ -92,12 +92,18 @@ export function ForecastChart({ data, model, loading }: ForecastChartProps) {
         type: 'datetime' as const,
         labels: {
           datetimeUTC: false,
-          format: 'HH:mm',
           style: {
             fontSize: '11px',
             colors: '#94a3b8',
           },
+          datetimeFormatter: {
+            year: 'yyyy',
+            month: "MMM 'yy",
+            day: 'dd MMM',
+            hour: 'HH:mm',
+          },
         },
+        tickAmount: 8,
         axisBorder: { show: true, color: '#e2e8f0' },
         axisTicks: { show: false },
       },
