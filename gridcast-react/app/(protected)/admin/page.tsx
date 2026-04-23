@@ -295,6 +295,7 @@ export default function AdminDashboard() {
                     <ModelComparison 
                       xgboostData={xgboostData} 
                       lstmData={lstmData} 
+                      horizon={activeHorizon}
                       loading={loading} 
                     />
                   </div>
