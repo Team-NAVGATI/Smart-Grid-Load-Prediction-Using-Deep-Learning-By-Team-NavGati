@@ -1086,7 +1086,7 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
   const [formData, setFormData] = useState({ companyName: "", gstin: "", industry: "", region: "north", expectedLoad: "", peakLoad: "", offPeakLoad: "", shift: "24x7", cooling: "air", renewablePercent: 0, facilitySize: "", employees: "", contractDemand: "", sanctionedLoad: "", greenTarget: 0, budgetRange: "" });
   const update = (k: string, v: string | number) => setFormData(p => ({ ...p, [k]: v }));
   const industryDef = INDUSTRY_TYPES.find(i => i.value === formData.industry);
-  const STEPS = ["Company Profile", "Electricity Setup", "Goals & Sustainability"];
+  const STEPS = ["Company Profile", "Electricity Setup", "Goals & Sustainability", "Data Ingestion"];
 
 
   return (
@@ -1103,7 +1103,7 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "44px 20px" }}>
         {/* Step bar */}
         <div style={{ display: "flex", position: "relative", marginBottom: 44 }}>
-          <div style={{ position: "absolute", top: 16, left: "16.67%", right: "16.67%", height: 1, background: "#1e3a4a" }} />
+          <div style={{ position: "absolute", top: 16, left: "12.5%", right: "12.5%", height: 1, background: "#1e3a4a" }} />
           {STEPS.map((s, i) => (
             <div key={s} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
               <div style={{ width: 32, height: 32, borderRadius: "50%", background: i + 1 <= step ? "#06b6d4" : "#0f1e2e", border: `2px solid ${i + 1 <= step ? "#06b6d4" : "#1e3a4a"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: i + 1 <= step ? "#020f1a" : "#475569", zIndex: 2, position: "relative" }}>{i + 1 < step ? "✓" : i + 1}</div>
@@ -1222,10 +1222,41 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
             </>
           )}
 
+          {step === 4 && (
+            <>
+              <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Historical Data Upload</h2>
+              <p style={{ color: "#64748b", fontSize: 13, marginBottom: 30 }}>Seed the AI model with your facility's energy patterns for higher accuracy.</p>
+              
+              <div style={{ border: "2px dashed rgba(6,182,212,0.3)", borderRadius: 16, padding: "48px 32px", textAlign: "center", background: "rgba(6,182,212,0.03)", position: "relative", cursor: "pointer" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#06b6d4"} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(6,182,212,0.3)"}>
+                <div style={{ color: "#06b6d4", marginBottom: 20, display: "flex", justifyContent: "center" }}><DownloadCloud size={48} strokeWidth={1.5} /></div>
+                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>Drop your SCADA/Utility data here</div>
+                <div style={{ fontSize: 12, color: "#64748b", marginBottom: 24 }}>Supports .csv, .parquet, or .xlsx (Max 50MB)</div>
+                <button className="gc-btn gc-btn-ghost" style={{ padding: "10px 24px", fontSize: 13 }}>Browse Files</button>
+              </div>
+
+              <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div className="gc-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ color: "#06b6d4" }}><FileSearch size={20} /></div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>Auto-ETL Mapping</div>
+                    <div style={{ fontSize: 10, color: "#64748b" }}>Detected columns automatically</div>
+                  </div>
+                </div>
+                <div className="gc-card" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ color: "#10b981" }}><ShieldCheck size={20} /></div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>Secure Encryption</div>
+                    <div style={{ fontSize: 10, color: "#64748b" }}>AES-256 at rest</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 36 }}>
             <button className="gc-btn gc-btn-dim" onClick={() => step > 1 ? setStep(step - 1) : onNavigate("login")}>← Back</button>
-            <button className="gc-btn" style={{ background: step === 3 ? "#10b981" : "#06b6d4", color: "#020f1a" }} onClick={() => step < 3 ? setStep(step + 1) : onNavigate("company-dashboard")}>
-              {step === 3 ? "Launch My Dashboard →" : "Continue →"}
+            <button className="gc-btn" style={{ background: step === 4 ? "#10b981" : "#06b6d4", color: "#020f1a" }} onClick={() => step < 4 ? setStep(step + 1) : onNavigate("company-dashboard")}>
+              {step === 4 ? "Launch Dashboard with Demo Data →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -1692,297 +1723,14 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
 // PAGE: ADMIN DASHBOARD (light theme — original HTML reference)
 // ─────────────────────────────────────────────────────────────────────────────
 function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
-  const [activeTab, setActiveTab] = useState<string>('forecast');
-  const [activeModel, setActiveModel] = useState<ModelType>('xgboost');
-  const [activeHorizon, setActiveHorizon] = useState<Horizon>('24h');
-  
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [xgboostData, setXgboostData] = useState<ForecastData | null>(null);
-  const [lstmData, setLstmData] = useState<ForecastData | null>(null);
-  const [residualData, setResidualData] = useState<ResidualData | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    async function loadData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const [xgb, lstm, res] = await Promise.all([
-          fetchForecastData('xgboost', activeHorizon),
-          fetchForecastData('lstm', activeHorizon),
-          fetchResidualData(activeModel)
-        ]);
-        if (mounted) {
-          setXgboostData(xgb);
-          setLstmData(lstm);
-          setResidualData(res);
-        }
-      } catch (err) {
-        console.error('Failed to load admin data:', err);
-        if (mounted) setError('Failed to sync with predictive engines.');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-    loadData();
-    return () => { mounted = false; };
-  }, [activeHorizon, activeModel]);
-
-  const currentData = activeModel === 'xgboost' ? xgboostData : lstmData;
-  const config = MODEL_CONFIGS[activeModel];
-  const modelColor = config.color;
-
-  if (error) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', color: '#dc2626' }}>
-        <div style={{ textAlign: 'center', padding: '40px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'white', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>Connection Error</h2>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()} style={{ marginTop: '20px', padding: '10px 20px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>Retry Sync</button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="gc-admin-root gc-theme-light" style={{ background: 'var(--gc-bg)', minHeight: '100vh', color: 'var(--gc-text)', fontFamily: 'var(--gc-font-sans)' }}>
-      {/* Navbar */}
-      <nav style={{ background: 'rgba(255, 255, 255, 0.8)', borderBottom: '1px solid #e2e8f0', backdropFilter: 'blur(10px)', height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 32 }}>
-          <div className="gc-logo-dot" />
-          <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--gc-text)', letterSpacing: '-0.02em' }}>Grid<span style={{ color: '#06b6d4' }}>Cast</span> Admin</span>
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {['Forecast', 'Analysis', 'Models', 'Reports'].map(t => (
-            <button
-              key={t}
-              onClick={() => setActiveTab(t.toLowerCase())}
-              style={{
-                padding: '5px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, border: 'none', background: activeTab === t.toLowerCase() ? 'rgba(6, 182, 212, 0.12)' : 'transparent', color: activeTab === t.toLowerCase() ? '#06b6d4' : '#64748b', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit'
-              }}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <div style={{ flex: 1 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => onNavigate('login')} style={{ background: 'transparent', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <LogOut size={14} /> Exit
-          </button>
-        </div>
-      </nav>
-
-      <div style={{ display: 'flex', height: 'calc(100vh - 52px)' }}>
-        {/* Sidebar */}
-        <aside style={{ width: 220, background: '#f8fafc', borderRight: '1px solid #e2e8f0', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Predictive Engine</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
-            {(['xgboost', 'lstm'] as ModelType[]).map(m => (
-              <div
-                key={m}
-                onClick={() => setActiveModel(m)}
-                style={{
-                  height: 40, borderRadius: '8px', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10, fontSize: '13px', fontWeight: 600,
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeModel === m ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
-                  color: activeModel === m ? '#06b6d4' : '#64748b',
-                  border: activeModel === m ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent'
-                }}
-              >
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: MODEL_CONFIGS[m].color }} />
-                <span>{MODEL_CONFIGS[m].name}</span>
-                {activeModel === m && <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', padding: '2px 6px', borderRadius: '4px' }}>Active</span>}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Forecast Horizon</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
-            {(['24h', '48h', '72h'] as Horizon[]).map(h => (
-              <div
-                key={h}
-                onClick={() => setActiveHorizon(h)}
-                style={{
-                  height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10, fontSize: '13px', fontWeight: 500,
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeHorizon === h ? 'rgba(148, 163, 184, 0.05)' : 'transparent',
-                  color: activeHorizon === h ? 'var(--gc-text)' : '#64748b',
-                  border: activeHorizon === h ? '1px solid rgba(148, 163, 184, 0.2)' : '1px solid transparent'
-                }}
-              >
-                <Clock size={14} style={{ opacity: activeHorizon === h ? 1 : 0.5 }} />
-                <span>{h} Window</span>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Regions</div>
-          {REGIONS.map(r => (
-            <div
-              key={r.id}
-              style={{
-                height: 32, borderRadius: '7px', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 8, fontSize: '13px', fontWeight: 500, color: r.id === 'north' ? '#06b6d4' : '#64748b', background: r.id === 'north' ? 'rgba(6, 182, 212, 0.08)' : 'transparent', cursor: 'pointer'
-              }}
-            >
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: r.id === 'north' ? '#06b6d4' : '#1e3a4a' }} />
-              <span>{r.label.split(' ')[0]}</span>
-            </div>
-          ))}
-        </aside>
-
-        {/* Main Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px', background: 'var(--gc-bg)' }}>
-          {activeTab === 'forecast' && (
-            <>
-              {/* KPIs */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-                {[
-                  { label: 'Accuracy MAPE', value: loading ? '...' : `${currentData?.horizon_metrics[activeHorizon]?.mape?.toFixed(2) ?? '--'}%`, icon: <Target size={18} />, color: (currentData?.horizon_metrics[activeHorizon]?.mape ?? 10) < 3 ? '#10b981' : '#f59e0b' },
-                  { label: 'Predicted Peak', value: loading ? '...' : `${Math.max(...(currentData?.forecast.map(p => p.load_mw) ?? [0])).toLocaleString()} MW`, icon: <TrendingUp size={18} />, color: '#06b6d4' },
-                  { label: 'Engine Latency', value: '1.2s', icon: <Zap size={18} />, color: '#94a3b8' },
-                  { label: 'Last Sync', value: loading ? '...' : currentData ? new Date(currentData.generated_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--', icon: <RefreshCw size={18} />, color: '#06b6d4' }
-                ].map(k => (
-                  <div key={k.label} className="gc-card" style={{ padding: '18px', background: '#ffffff', borderColor: '#e2e8f0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</span>
-                      <div style={{ color: k.color }}>{k.icon}</div>
-                    </div>
-                    <div style={{ fontSize: '22px', fontWeight: 700, color: k.color, fontFamily: 'var(--gc-font-mono)', letterSpacing: '-0.5px' }}>{k.value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.6fr', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <ForecastChart data={currentData} model={activeModel} loading={loading} />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <ModelComparison xgboostData={xgboostData} lstmData={lstmData} horizon={activeHorizon} loading={loading} />
-                </div>
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <ResidualHeatmap data={residualData} loading={loading} />
-              </div>
-            </>
-          )}
-
-          {activeTab === 'analysis' && (
-            <div style={{ animation: 'fadeIn 0.3s ease' }}>
-              <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#003d99', letterSpacing: '-0.5px' }}>Load Analysis — North Region</h2>
-                <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Operational analysis summary for current forecast cycle</p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> Error Pattern Insights</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
-                      <span>Morning transition slots show higher variance than mid-day due to solar ramp-up.</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
-                      <span>Weekday peaks remain more stable than weekend peaks for industrial nodes.</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
-                      <span>Backtest heatmap remains primary source for slot-level reliability analysis.</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Layers size={16} /> Operational Notes</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
-                      <span>Monitor high-demand windows around peak ramp-up hours (06:00–09:00).</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
-                      <span>Cross-check abnormal spikes with regional weather and holiday signals.</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
-                      <span>Re-run training pipeline after material demand pattern shifts in industrial clusters.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'models' && (
-            <div style={{ animation: 'fadeIn 0.3s ease' }}>
-              <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#003d99', letterSpacing: '-0.5px' }}>Model Stack</h2>
-                <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Status and readiness of forecasting pipelines</p>
-              </div>
-
-              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#003d99' }}>Model Readiness Matrix</h3>
-                </div>
-                <div>
-                  {[
-                    { name: 'XGBoost', type: 'Production model · Season-aware features', color: '#4c79b8', status: 'Active', statusColor: 'rgba(16, 185, 129, 0.1)', textColor: '#10b981' },
-                    { name: 'LSTM', type: 'Sequence model · Direct multi-step output · Bidirectional', color: '#7C3AED', status: 'Active', statusColor: 'rgba(167, 139, 250, 0.1)', textColor: '#a78bfa' },
-                    { name: 'Linear Regression', type: 'Baseline benchmark for drift checks', color: '#94a3b8', status: 'Baseline', statusColor: 'rgba(148, 163, 184, 0.1)', textColor: '#94a3b8' }
-                  ].map((m, i) => (
-                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: i === 2 ? 'none' : '1px solid #f1f5f9' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: m.color, marginRight: '16px' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{m.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>{m.type}</div>
-                      </div>
-                      <div style={{ padding: '4px 10px', background: m.statusColor, borderRadius: '20px', fontSize: '11px', fontWeight: 700, color: m.textColor, border: `1px solid ${m.textColor}20` }}>
-                        {m.status}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'reports' && (
-            <div style={{ animation: 'fadeIn 0.3s ease' }}>
-              <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#003d99', letterSpacing: '-0.5px' }}>Reports</h2>
-                <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Generated artifacts and export-ready summaries</p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><BarChart size={16} /> Forecast Reporting</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Daily forecast snapshot with peak/trough summary.</span></div>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Weekly accuracy digest for stakeholder review.</span></div>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>CSV export available from Forecast tab.</span></div>
-                  </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>Generate Full Digest</button>
-                </div>
-
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={16} /> Model Governance</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Log model performance against rolling benchmarks.</span></div>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Maintain retraining notes and data coverage updates.</span></div>
-                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Use residual heatmap trends for exception reporting.</span></div>
-                  </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>View Compliance Log</button>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 10, right: 24, zIndex: 1000 }}>
+        <button onClick={() => onNavigate('login')} style={{ background: 'white', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '6px', padding: '6px 14px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}>
+          <LogOut size={14} /> Exit Admin
+        </button>
       </div>
+      <iframe src="/admin-legacy.html" style={{ width: '100%', height: '100%', border: 'none' }} title="Admin Dashboard" />
     </div>
   );
 }
