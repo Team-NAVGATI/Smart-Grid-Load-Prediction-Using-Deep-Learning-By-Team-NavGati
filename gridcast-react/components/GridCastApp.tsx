@@ -510,11 +510,30 @@ function PremiumCompanyForecastChart({
             const value = series[idx]?.[dataPointIndex];
             if (typeof value !== "number") return "";
             const color = w.globals.colors?.[idx] ?? "#22d3ee";
-            return `<div style="display:flex;justify-content:space-between;gap:16px;margin-top:6px;"><span style="color:${color};font-weight:600;">${name}</span><span style="color:#e2e8f0;font-family:'JetBrains Mono',monospace;">${Math.round(value).toLocaleString('en-IN')} MW</span></div>`;
+            let desc = "";
+            if (name === "Actual") desc = "Live SCADA telemetry";
+            else if (name.includes("Forecast")) desc = `AI predicted load (${modelLabel})`;
+            else if (name === "Optimized Target") desc = "Recommended demand shift";
+
+            return `
+              <div style="margin-top:10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                <div style="display:flex;justify-content:space-between;gap:16px;">
+                  <span style="color:${color};font-weight:700;font-size:12px;">${name}</span>
+                  <span style="color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-weight:700;">${Math.round(value).toLocaleString('en-IN')} MW</span>
+                </div>
+                <div style="color:#64748b;font-size:10px;margin-top:2px;">${desc}</div>
+              </div>
+            `;
           })
           .join("");
 
-        return `<div style="background:#020f1a;border:1px solid rgba(34,211,238,.35);border-radius:10px;padding:10px 12px;min-width:220px;"><div style="color:#67e8f9;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">${t}</div>${rows}</div>`;
+        return `
+          <div style="background:#020f1a;border:1px solid rgba(34,211,238,.45);border-radius:12px;padding:12px 16px;min-width:240px;box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);">
+            <div style="color:#67e8f9;font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:800;margin-bottom:4px;">Time Slot</div>
+            <div style="color:#f8fafc;font-size:14px;font-weight:700;margin-bottom:4px;">${t}</div>
+            ${rows}
+          </div>
+        `;
       },
     },
     annotations: {
@@ -1249,11 +1268,51 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
   const modelLabel = model === "xgboost" ? "XGBoost" : "LSTM";
 
   const kpiCards = [
-    { label: "CO₂ Avoided (MTD)", value: (co2Saved / 12).toFixed(1), unit: "tCO₂", color: "#10b981", icon: <Leaf size={18} />, trend: "+8.2% vs last month" },
-    { label: "Energy Optimised (MTD)", value: (savingsMWh / 12).toFixed(0), unit: "MWh", color: "#06b6d4", icon: <Zap size={18} />, trend: "+12.1% vs last month" },
-    { label: "Cost Saved (MTD)", value: `₹${((inrSaved / 12) / 100000).toFixed(1)}L`, unit: "", color: "#f59e0b", icon: <DollarSign size={18} />, trend: "+9.5% vs last month" },
-    { label: "Grid Carbon Intensity", value: "0.716", unit: "tCO₂/MWh", color: "#a78bfa", icon: <Activity size={18} />, trend: "CEA FY2022-23 baseline" },
-    { label: "Renewable Share", value: "22", unit: "%", color: "#10b981", icon: <Sun size={18} />, trend: "Target: 40% by 2027" },
+    { 
+      label: "CO₂ Avoided (MTD)", 
+      value: (co2Saved / 12).toFixed(1), 
+      unit: "tCO₂", 
+      color: "#10b981", 
+      icon: <Leaf size={18} />, 
+      trend: "+8.2% vs last month",
+      desc: "Calculated based on 12.7% predicted energy optimization vs India grid emission factor of 0.716 tCO₂/MWh."
+    },
+    { 
+      label: "Energy Optimised (MTD)", 
+      value: (savingsMWh / 12).toFixed(0), 
+      unit: "MWh", 
+      color: "#06b6d4", 
+      icon: <Zap size={18} />, 
+      trend: "+12.1% vs last month",
+      desc: "Predicted reduction in grid demand through AI-driven load shifting and peak avoidance strategies."
+    },
+    { 
+      label: "Cost Saved (MTD)", 
+      value: `₹${((inrSaved / 12) / 100000).toFixed(1)}L`, 
+      unit: "", 
+      color: "#f59e0b", 
+      icon: <DollarSign size={18} />, 
+      trend: "+9.5% vs last month",
+      desc: "Estimated financial savings based on reduced energy waste and avoidance of peak-time TOD (Time of Day) tariffs."
+    },
+    { 
+      label: "Grid Carbon Intensity", 
+      value: "0.716", 
+      unit: "tCO₂/MWh", 
+      color: "#a78bfa", 
+      icon: <Activity size={18} />, 
+      trend: "CEA FY2022-23 baseline",
+      desc: "Regional grid emission intensity baseline provided by the Central Electricity Authority (CEA)."
+    },
+    { 
+      label: "Renewable Share", 
+      value: "22", 
+      unit: "%", 
+      color: "#10b981", 
+      icon: <Sun size={18} />, 
+      trend: "Target: 40% by 2027",
+      desc: "Real-time estimated contribution of solar, wind, and hydro to the regional grid mix."
+    },
     {
       label: "Forecast Accuracy",
       value: metrics.mape !== null ? (100 - metrics.mape).toFixed(1) : "N/A",
@@ -1264,6 +1323,7 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
         metrics.mape !== null
           ? `MAPE ${metrics.mape.toFixed(2)}% · ${horizon} · ${modelLabel}`
           : `Awaiting ${modelLabel} ${horizon} metrics`,
+      desc: "The precision of our AI model. 100% minus Mean Absolute Percentage Error (MAPE) against actual grid telemetry."
     },
   ];
 
@@ -1362,14 +1422,17 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
             {activeTab === "overview" && (
               <>
                 <div style={{ marginBottom: 24 }}>
-                  <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4, letterSpacing: "-0.5px" }}>Company Energy Dashboard</h1>
-                  <p style={{ color: "#64748b", fontSize: 13 }}>Your real-time electricity intelligence — powered by GridCast AI</p>
+                  <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4, letterSpacing: "-0.5px" }}>AI-Predicted Energy Insights</h1>
+                  <p style={{ color: "#64748b", fontSize: 13 }}>Real-time electricity intelligence — powered by GridCast predictive engine</p>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
                   {kpiCards.map(k => (
-                    <div key={k.label} className="gc-kpi">
+                    <div key={k.label} className="gc-kpi" style={{ position: "relative" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                        <span style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>{k.label}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>{k.label}</span>
+                          <div title={k.desc} style={{ cursor: "help", color: "#475569" }}><Info size={12} /></div>
+                        </div>
                         <div style={{ color: k.color }}>{k.icon}</div>
                       </div>
                       <div style={{ fontSize: 28, fontWeight: 700, color: k.color, fontFamily: "JetBrains Mono, monospace", letterSpacing: "-1px" }}>
@@ -1383,8 +1446,8 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                   <div className="gc-card" style={{ padding: 24 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                       <div>
-                        <div style={{ fontWeight: 600, marginBottom: 2 }}>Today's Load Curve</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>Actual vs Forecast (MW) · 15-min intervals</div>
+                        <div style={{ fontWeight: 600, marginBottom: 2 }}>AI-Predicted Load Curve</div>
+                        <div style={{ fontSize: 12, color: "#64748b" }}>Actual vs AI Forecast (MW) · 15-min intervals</div>
                       </div>
                       <div style={{ fontSize: 11, color: "#10b981", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 6, padding: "4px 10px" }}>
                         {metrics.mape !== null ? `MAPE ${metrics.mape.toFixed(2)}%` : "MAPE pending"}
@@ -1437,13 +1500,13 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
             {activeTab === "forecast" && (
               <>
                 <div style={{ marginBottom: 24 }}>
-                  <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Load Forecast — {horizon.toUpperCase()} Ahead</h1>
+                  <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>AI-Predicted Load Forecast — {horizon.toUpperCase()} Ahead</h1>
                   <p style={{ color: "#64748b", fontSize: 13 }}>
                     {modelLabel} model · {chartData?.forecast?.length ?? 0} steps · {metrics.mape !== null ? `MAPE ${metrics.mape.toFixed(2)}%` : "MAPE pending"} · North NRLDC grid
                   </p>
                 </div>
                 <div className="gc-card" style={{ padding: 24, marginBottom: 20 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={{ fontWeight: 600 }}>Company Load vs Grid Forecast</div><button className="gc-btn gc-btn-ghost" style={{ padding: "6px 14px", fontSize: 12 }}>↓ Export CSV</button></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={{ fontWeight: 600 }}>Company Load vs AI-Predicted Grid Forecast</div><button className="gc-btn gc-btn-ghost" style={{ padding: "6px 14px", fontSize: 12 }}>↓ Export CSV</button></div>
                   <PremiumCompanyForecastChart
                     height={320}
                     timestamps={chartData?.timestamps}
