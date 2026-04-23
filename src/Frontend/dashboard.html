@@ -804,7 +804,7 @@ async function switchModel(model) {
 async function fetchSupplementalMetrics(model) {
   if (cache[model].metrics) return cache[model].metrics;
   try {
-    const res = await fetch(`${getDataPath(model)}/metrics.json`);
+    const res = await fetch(`${getDataPath(model)}/forecast_24h.json`);
     if (!res.ok) return null;
     const m = await res.json();
     cache[model].metrics = m;
