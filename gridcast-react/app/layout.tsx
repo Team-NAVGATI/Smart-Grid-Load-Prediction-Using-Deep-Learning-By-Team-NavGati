@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, DM_Sans, DM_Mono, Red_Hat_Display } from "next/font/google";
+import {
+  DM_Sans,
+  DM_Mono,
+  Red_Hat_Display,
+  Space_Grotesk,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
+// Keep existing fonts for backward compat
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
@@ -31,8 +40,25 @@ const redHat = Red_Hat_Display({
 });
 
 export const metadata: Metadata = {
-  title: "GridCast - Electricity Load Forecasting",
-  description: "Smart grid load forecasting with XGBoost and LSTM models",
+  title: "GridCast — Smart Grid Intelligence Platform",
+  description:
+    "AI-powered electricity load forecasting at 15-minute resolution, 24 hours ahead. Purpose-built for India's smart grid operators and industrial energy consumers.",
+  keywords: [
+    "smart grid",
+    "load forecasting",
+    "electricity",
+    "NRLDC",
+    "XGBoost",
+    "carbon footprint",
+    "energy optimisation",
+    "India grid",
+  ],
+  openGraph: {
+    title: "GridCast — Smart Grid Intelligence Platform",
+    description:
+      "Predict the grid. Before it breaks. AI-powered electricity load forecasting for India's smart grid operators.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -43,14 +69,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} ${dmMono.variable} ${redHat.variable} h-full antialiased`}
+      className={`
+        ${spaceGrotesk.variable}
+        ${jetbrainsMono.variable}
+        ${dmSans.variable}
+        ${dmMono.variable}
+        ${redHat.variable}
+        h-full antialiased
+      `}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+      </body>
     </html>
   );
 }
