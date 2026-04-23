@@ -27,14 +27,12 @@ export function ModelComparison({
       };
     }
 
-    const metrics = ['MAE', 'RMSE'];
+    const metrics = ['MAPE (%)'];
     const xgbValues = [
-      xgboostData.horizon_metrics[horizon]?.mae || 0,
-      xgboostData.horizon_metrics[horizon]?.rmse || 0,
+      xgboostData.horizon_metrics[horizon]?.mape || 0,
     ];
     const lstmValues = [
-      lstmData.horizon_metrics[horizon]?.mae || 0,
-      lstmData.horizon_metrics[horizon]?.rmse || 0,
+      lstmData.horizon_metrics[horizon]?.mape || 0,
     ];
 
     // Find max value to set headroom
@@ -76,7 +74,7 @@ export function ModelComparison({
       yaxis: {
         max: maxValue * 1.25, // Add 25% headroom for data labels
         title: {
-          text: 'Error Value',
+          text: 'Error (%)',
           style: {
             fontSize: '11px',
             color: '#94a3b8',
@@ -98,7 +96,7 @@ export function ModelComparison({
           colors: ['#475569'],
           fontWeight: 700,
         },
-        formatter: (val: number) => val.toFixed(1),
+        formatter: (val: number) => `${val.toFixed(2)}%`,
       },
       tooltip: {
         enabled: true,
@@ -106,7 +104,7 @@ export function ModelComparison({
         shared: true,
         intersect: false,
         y: {
-          formatter: (val: number) => val.toFixed(3),
+          formatter: (val: number) => `${val.toFixed(3)}%`,
         },
       },
       legend: {
@@ -164,7 +162,7 @@ export function ModelComparison({
           </h3>
         </div>
         <p className="text-11px text-slate-400 font-bold uppercase tracking-wider ml-[22px]">
-          Backtest Performance: {horizon} Horizon
+          Backtest MAPE (%): {horizon} Horizon
         </p>
       </div>
 
