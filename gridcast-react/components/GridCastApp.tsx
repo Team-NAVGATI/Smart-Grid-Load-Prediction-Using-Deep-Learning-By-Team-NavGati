@@ -1647,9 +1647,9 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
   }
 
   return (
-    <div className="gc-admin-root" style={{ background: 'var(--gc-bg)', minHeight: '100vh', color: 'var(--gc-text)', fontFamily: 'var(--gc-font-sans)' }}>
+    <div className="gc-admin-root gc-theme-light" style={{ background: 'var(--gc-bg)', minHeight: '100vh', color: 'var(--gc-text)', fontFamily: 'var(--gc-font-sans)' }}>
       {/* Navbar */}
-      <nav style={{ background: 'rgba(2, 10, 20, 0.8)', borderBottom: '1px solid rgba(6, 182, 212, 0.1)', backdropFilter: 'blur(10px)', height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ background: 'rgba(255, 255, 255, 0.8)', borderBottom: '1px solid #e2e8f0', backdropFilter: 'blur(10px)', height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 32 }}>
           <div className="gc-logo-dot" />
           <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--gc-text)', letterSpacing: '-0.02em' }}>Grid<span style={{ color: '#06b6d4' }}>Cast</span> Admin</span>
@@ -1677,7 +1677,7 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
 
       <div style={{ display: 'flex', height: 'calc(100vh - 52px)' }}>
         {/* Sidebar */}
-        <aside style={{ width: 220, background: 'rgba(2, 10, 20, 0.9)', borderRight: '1px solid rgba(6, 182, 212, 0.1)', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <aside style={{ width: 220, background: '#f8fafc', borderRight: '1px solid #e2e8f0', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Predictive Engine</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
             {(['xgboost', 'lstm'] as ModelType[]).map(m => (
@@ -1745,7 +1745,7 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                   { label: 'Engine Latency', value: '1.2s', icon: <Zap size={18} />, color: '#94a3b8' },
                   { label: 'Last Sync', value: loading ? '...' : currentData ? new Date(currentData.generated_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--', icon: <RefreshCw size={18} />, color: '#06b6d4' }
                 ].map(k => (
-                  <div key={k.label} className="gc-card" style={{ padding: '18px', background: 'rgba(15, 23, 42, 0.4)', borderColor: 'rgba(6, 182, 212, 0.1)' }}>
+                  <div key={k.label} className="gc-card" style={{ padding: '18px', background: '#ffffff', borderColor: '#e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
                       <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</span>
                       <div style={{ color: k.color }}>{k.icon}</div>
@@ -1779,36 +1779,36 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> Error Pattern Insights</h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> Error Pattern Insights</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#06b6d4', marginTop: 6, flexShrink: 0 }} />
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
                       <span>Morning transition slots show higher variance than mid-day due to solar ramp-up.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#06b6d4', marginTop: 6, flexShrink: 0 }} />
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
                       <span>Weekday peaks remain more stable than weekend peaks for industrial nodes.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#06b6d4', marginTop: 6, flexShrink: 0 }} />
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
                       <span>Backtest heatmap remains primary source for slot-level reliability analysis.</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: 8 }}><Layers size={16} /> Operational Notes</h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Layers size={16} /> Operational Notes</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
                       <span>Monitor high-demand windows around peak ramp-up hours (06:00–09:00).</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
                       <span>Cross-check abnormal spikes with regional weather and holiday signals.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
                       <span>Re-run training pipeline after material demand pattern shifts in industrial clusters.</span>
                     </div>
@@ -1825,9 +1825,9 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                 <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Status and readiness of forecasting pipelines</p>
               </div>
 
-              <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(6, 182, 212, 0.1)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#06b6d4' }}>Model Readiness Matrix</h3>
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#003d99' }}>Model Readiness Matrix</h3>
                 </div>
                 <div>
                   {[
@@ -1835,10 +1835,10 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                     { name: 'LSTM', type: 'Sequence model · Direct multi-step output · Bidirectional', color: '#7C3AED', status: 'Active', statusColor: 'rgba(167, 139, 250, 0.1)', textColor: '#a78bfa' },
                     { name: 'Linear Regression', type: 'Baseline benchmark for drift checks', color: '#94a3b8', status: 'Baseline', statusColor: 'rgba(148, 163, 184, 0.1)', textColor: '#94a3b8' }
                   ].map((m, i) => (
-                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: i === 2 ? 'none' : '1px solid rgba(6, 182, 212, 0.05)' }}>
+                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: i === 2 ? 'none' : '1px solid #f1f5f9' }}>
                       <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: m.color, marginRight: '16px' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>{m.name}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{m.name}</div>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>{m.type}</div>
                       </div>
                       <div style={{ padding: '4px 10px', background: m.statusColor, borderRadius: '20px', fontSize: '11px', fontWeight: 700, color: m.textColor, border: `1px solid ${m.textColor}20` }}>
@@ -1859,24 +1859,24 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: 8 }}><BarChart size={16} /> Forecast Reporting</h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><BarChart size={16} /> Forecast Reporting</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>Daily forecast snapshot with peak/trough summary.</span></div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>Weekly accuracy digest for stakeholder review.</span></div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>CSV export available from Forecast tab.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Daily forecast snapshot with peak/trough summary.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Weekly accuracy digest for stakeholder review.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>CSV export available from Forecast tab.</span></div>
                   </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#06b6d4', cursor: 'pointer', transition: '0.2s' }}>Generate Full Digest</button>
+                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>Generate Full Digest</button>
                 </div>
 
-                <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(6, 182, 212, 0.1)', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={16} /> Model Governance</h3>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={16} /> Model Governance</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>Log model performance against rolling benchmarks.</span></div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>Maintain retraining notes and data coverage updates.</span></div>
-                    <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', gap: 10 }}><span>•</span> <span>Use residual heatmap trends for exception reporting.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Log model performance against rolling benchmarks.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Maintain retraining notes and data coverage updates.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Use residual heatmap trends for exception reporting.</span></div>
                   </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#06b6d4', cursor: 'pointer', transition: '0.2s' }}>View Compliance Log</button>
+                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>View Compliance Log</button>
                 </div>
               </div>
             </div>

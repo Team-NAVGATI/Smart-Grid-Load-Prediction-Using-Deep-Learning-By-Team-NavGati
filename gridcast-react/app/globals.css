@@ -42,6 +42,23 @@
   --gc-ease-out:  cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* ─── LIGHT THEME OVERRIDES ──────────────────────────────────────────────────── */
+.gc-theme-light {
+  --gc-bg:        #f8fafc;
+  --gc-bg2:       #ffffff;
+  --gc-bg3:       #f1f5f9;
+  --gc-surface:   #ffffff;
+  --gc-surface2:  #f8fafc;
+  --gc-text:      #0f172a;
+  --gc-text-2:    #475569;
+  --gc-muted:     #64748b;
+  --gc-subtle:    #94a3b8;
+  --gc-ghost:     #e2e8f0;
+  --gc-border:    #e2e8f0;
+  --gc-border-2:  rgba(6, 182, 212, 0.1);
+  --gc-border-3:  rgba(6, 182, 212, 0.2);
+}
+
 /* ─── RESET & BASE ───────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
