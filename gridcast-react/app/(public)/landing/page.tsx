@@ -338,7 +338,7 @@ export default function LandingPage() {
             >
               {[
                 ["4.7B+", "People on global grids"],
-                ["₹2T+", "India grid investment"],
+                ["INR 2T+", "India grid investment"],
                 ["30%", "Reserve waste reducible"],
                 ["0.716", "tCO₂/MWh India grid"],
               ].map(([v, l]) => (
@@ -846,7 +846,7 @@ export default function LandingPage() {
                       borderRadius: 2,
                     }}
                   />
-                  ±5% CI
+                  +/- 5% CI
                 </span>
               </div>
             </div>
@@ -937,7 +937,7 @@ export default function LandingPage() {
               [<Calendar key="cal2" size={14} />, "LSTM Fine-tune", "var(--gc-muted)"],
             ].map(([icon, title, color]) => (
               <div
-                key={title}
+                key={title as string}
                 className="gc-reveal"
                 style={{
                   flex: 1,
@@ -952,7 +952,7 @@ export default function LandingPage() {
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    background: color,
+                    background: color as string,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -968,7 +968,7 @@ export default function LandingPage() {
                 <div
                   style={{
                     fontSize: 12,
-                    color,
+                    color: color as string,
                     textAlign: "center",
                     fontWeight: 600,
                     marginTop: 4,
@@ -1137,7 +1137,7 @@ export default function LandingPage() {
             fontFamily: "var(--gc-font-mono)",
           }}
         >
-          {["GridCast v2.1", "MIT License", "© 2025 Team NavGati", "Built on NRLDC Open Data"].map(
+          {["GridCast v2.1", "MIT License", "(c) 2025 Team NavGati", "Built on NRLDC Open Data"].map(
             (t) => <span key={t}>{t}</span>
           )}
         </div>

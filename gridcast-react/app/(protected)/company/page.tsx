@@ -448,7 +448,7 @@ export default function CompanyDashboard() {
                     ],
                   ].map(([val, label, icon, color]) => (
                     <div
-                      key={label}
+                      key={label as string}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -463,7 +463,7 @@ export default function CompanyDashboard() {
                           style={{
                             fontSize: 15,
                             fontWeight: 700,
-                            color,
+                            color: color as string,
                             fontFamily: "var(--gc-font-mono)",
                           }}
                         >
