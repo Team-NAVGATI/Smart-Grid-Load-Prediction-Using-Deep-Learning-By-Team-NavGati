@@ -12,6 +12,21 @@ import {
   INDIA_GRID_EMISSION_FACTOR,
   INR_PER_KWH,
 } from "@/lib/constants";
+import { 
+  Leaf, 
+  Zap, 
+  IndianRupee, 
+  BarChart3, 
+  Sun, 
+  Target, 
+  Calendar, 
+  FileText, 
+  TreePine, 
+  Home, 
+  Car, 
+  Factory,
+  ArrowLeft
+} from "lucide-react";
 
 const DashGridCanvas = dynamic(
   () => import("@/components/three/DashGridCanvas"),
@@ -56,7 +71,7 @@ export default function CompanyDashboard() {
       value: (savings.co2Saved / 12).toFixed(1),
       unit: "tCO₂",
       color: "var(--gc-green)",
-      icon: "🌿",
+      icon: <Leaf size={18} />,
       trend: "+8.2% vs last month",
     },
     {
@@ -64,7 +79,7 @@ export default function CompanyDashboard() {
       value: (savings.savingsMWh / 12).toFixed(0),
       unit: "MWh",
       color: "var(--gc-cyan)",
-      icon: "⚡",
+      icon: <Zap size={18} />,
       trend: "+12.1% vs last month",
     },
     {
@@ -72,7 +87,7 @@ export default function CompanyDashboard() {
       value: `₹${((savings.inrSaved / 12) / 100000).toFixed(1)}L`,
       unit: "",
       color: "var(--gc-amber)",
-      icon: "💰",
+      icon: <IndianRupee size={18} />,
       trend: "+9.5% vs last month",
     },
     {
@@ -80,7 +95,7 @@ export default function CompanyDashboard() {
       value: INDIA_GRID_EMISSION_FACTOR.toString(),
       unit: "tCO₂/MWh",
       color: "var(--gc-violet)",
-      icon: "📊",
+      icon: <BarChart3 size={18} />,
       trend: "CEA FY2022-23 baseline",
     },
     {
@@ -88,7 +103,7 @@ export default function CompanyDashboard() {
       value: "22",
       unit: "%",
       color: "var(--gc-green)",
-      icon: "☀️",
+      icon: <Sun size={18} />,
       trend: "Target: 40% by 2027",
     },
     {
@@ -96,17 +111,17 @@ export default function CompanyDashboard() {
       value: "97.6",
       unit: "%",
       color: "var(--gc-cyan)",
-      icon: "🎯",
+      icon: <Target size={18} />,
       trend: "MAPE 2.4% · 24hr horizon",
     },
   ];
 
-  const navItems: { icon: string; label: string; id: Tab }[] = [
-    { icon: "📊", label: "Overview", id: "overview" },
-    { icon: "⚡", label: "Load Forecast", id: "forecast" },
-    { icon: "🌿", label: "Carbon Tracker", id: "carbon" },
-    { icon: "📅", label: "Schedule Optimizer", id: "schedule" },
-    { icon: "📄", label: "Reports", id: "reports" },
+  const navItems: { icon: any; label: string; id: Tab }[] = [
+    { icon: <BarChart3 size={14} />, label: "Overview", id: "overview" },
+    { icon: <Zap size={14} />, label: "Load Forecast", id: "forecast" },
+    { icon: <Leaf size={14} />, label: "Carbon Tracker", id: "carbon" },
+    { icon: <Calendar size={14} />, label: "Schedule Optimizer", id: "schedule" },
+    { icon: <FileText size={14} />, label: "Reports", id: "reports" },
   ];
 
   return (
@@ -216,7 +231,7 @@ export default function CompanyDashboard() {
           className="gc-btn gc-btn-dim"
           style={{ width: "100%", justifyContent: "center", fontSize: 12 }}
         >
-          ← Sign Out
+          <ArrowLeft size={14} /> Sign Out
         </button>
       </aside>
 
@@ -410,30 +425,30 @@ export default function CompanyDashboard() {
                     [
                       `${savings.treesEquiv.toLocaleString("en-IN")}`,
                       "Trees grown for 10 yrs",
-                      "🌳",
+                      <TreePine key="tree" size={20} />,
                       "var(--gc-green)",
                     ],
                     [
                       `${savings.homeEquiv.toLocaleString("en-IN")}`,
                       "Indian homes powered for 1 yr",
-                      "🏠",
+                      <Home key="home" size={20} />,
                       "var(--gc-cyan)",
                     ],
                     [
                       `${savings.carsEquiv.toFixed(0)}`,
                       "Cars off road for 1 yr",
-                      "🚗",
+                      <Car key="car" size={20} />,
                       "var(--gc-amber)",
                     ],
                     [
                       `${savings.coalEquiv.toFixed(1)} t`,
                       "Coal not burned equivalent",
-                      "🏭",
+                      <Factory key="factory" size={20} />,
                       "var(--gc-violet)",
                     ],
                   ].map(([val, label, icon, color]) => (
                     <div
-                      key={label}
+                      key={label as string}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -448,7 +463,7 @@ export default function CompanyDashboard() {
                           style={{
                             fontSize: 15,
                             fontWeight: 700,
-                            color,
+                            color: color as string,
                             fontFamily: "var(--gc-font-mono)",
                           }}
                         >

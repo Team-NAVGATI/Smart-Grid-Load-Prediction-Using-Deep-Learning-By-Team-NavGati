@@ -11,6 +11,47 @@ import { ForecastChart } from '@/components/charts/ForecastChart';
 import { ModelComparison } from '@/components/charts/ModelComparison';
 import { ResidualHeatmap } from '@/components/charts/ResidualHeatmap';
 import { KPICard } from '@/components/dashboard/KPICard';
+import { 
+  Zap, 
+  TrendingUp, 
+  Target, 
+  Activity, 
+  RefreshCw, 
+  Clock, 
+  LogOut, 
+  FileText, 
+  LayoutDashboard, 
+  Leaf, 
+  DollarSign, 
+  Sun, 
+  BarChart, 
+  Layers, 
+  Home, 
+  Car, 
+  Factory,
+  CheckCircle,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  ShieldCheck,
+  Building2,
+  Mail,
+  Terminal,
+  ChevronRight,
+  Info,
+  DownloadCloud,
+  FileSearch,
+  Filter,
+  Server,
+  Eye,
+  Settings,
+  Code2,
+  Box,
+  TrendingDown,
+  HardDrive,
+  Cloud,
+  Cpu
+} from "lucide-react";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -24,6 +65,18 @@ declare global {
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const INDIA_GRID_EMISSION_FACTOR = 0.716;
 const INR_PER_KWH = 7.5;
+
+const inputSt = { 
+  background: "rgba(6,182,212,0.05)", 
+  border: "1px solid rgba(6,182,212,0.2)", 
+  borderRadius: 8, 
+  padding: "11px 14px", 
+  color: "#e2e8f0", 
+  fontSize: 14, 
+  width: "100%", 
+  fontFamily: "inherit", 
+  outline: "none" 
+};
 
 const REGIONS = [
   { id: "north", label: "North (NRLDC)", nodes: ["DEL-N", "HR-01", "UP-02", "PB-01", "RJ-03"], color: "#06b6d4" },
@@ -755,15 +808,15 @@ function LandingPage({ onNavigate }: { onNavigate: (p: string) => void }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
           {[
-            ["⚡", "Demand Volatility", "Load swings 15–40% within minutes during peak events, outpacing manual dispatch by 3–5×."],
-            ["☁", "Renewable Intermittency", "Solar and wind generation can drop 80% in minutes. Without forecasting, operators over-provision expensive reserves."],
-            ["📊", "Dispatch Inefficiency", "Without accurate 15-min forecasts, operators carry 20–30% excess reserve capacity at ₹8–12/unit hidden cost."],
-            ["🗄", "Data Quality Gaps", "SCADA telemetry drops, sensor drift, and holiday anomalies create gaps conventional models cannot bridge."],
-            ["🏗", "Infrastructure Stress", "Legacy transmission infrastructure carries 110–125% rated load during heatwaves, risking catastrophic failure."],
-            ["✅", "GridCast Solves This", "96-step autoregressive XGBoost + LSTM pipeline with automated anomaly detection and sub-3% MAPE on NRLDC data.", true],
+            [<Zap key="zap" size={24} />, "Demand Volatility", "Load swings 15–40% within minutes during peak events, outpacing manual dispatch by 3–5×."],
+            [<Cloud key="cloud" size={24} />, "Renewable Intermittency", "Solar and wind generation can drop 80% in minutes. Without forecasting, operators over-provision expensive reserves."],
+            [<BarChart key="bar" size={24} />, "Dispatch Inefficiency", "Without accurate 15-min forecasts, operators carry 20–30% excess reserve capacity at ₹8–12/unit hidden cost."],
+            [<Layers key="db" size={24} />, "Data Quality Gaps", "SCADA telemetry drops, sensor drift, and holiday anomalies create gaps conventional models can't bridge."],
+            [<Factory key="factory" size={24} />, "Infrastructure Stress", "Legacy transmission infrastructure carries 110–125% rated load during heatwaves, risking catastrophic failure."],
+            [<ShieldCheck key="check" size={24} />, "GridCast Solves This", "96-step autoregressive XGBoost + LSTM pipeline with automated anomaly detection and sub-3% MAPE on NRLDC data.", true],
           ].map(([icon, title, desc, highlight]) => (
             <div key={String(title)} className="gc-card" style={{ padding: 28, ...(highlight ? { borderColor: "#06b6d4", background: "rgba(6,182,212,0.07)" } : {}) }}>
-              <div style={{ fontSize: 26, marginBottom: 14 }}>{icon}</div>
+              <div style={{ color: "var(--gc-cyan)", marginBottom: 14 }}>{icon}</div>
               <div style={{ fontWeight: 600, marginBottom: 8, color: highlight ? "#06b6d4" : "#e2e8f0" }}>{title}</div>
               <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.65 }}>{desc}</div>
             </div>
@@ -779,9 +832,16 @@ function LandingPage({ onNavigate }: { onNavigate: (p: string) => void }) {
         </div>
         <div style={{ display: "flex", gap: 0, position: "relative", alignItems: "flex-start" }}>
           <div style={{ position: "absolute", top: 20, left: "calc(8.33% + 20px)", right: "calc(8.33% + 20px)", height: 1, background: "linear-gradient(90deg,#06b6d4,#0e7490,#06b6d4)", opacity: 0.4 }} />
-          {[["SC", "Scrape", "Selenium ETL from NLDC portal every 15 min"], ["EX", "Extract", "Parquet feature store with lag & calendar vars"], ["CL", "Clean", "Z-score anomaly detect + gap interpolation"], ["ML", "Train", "XGBoost + LSTM on 2-yr NRLDC data"], ["API", "Serve", "Flask REST · P95 latency <1ms"], ["UI", "Visualise", "Operator dashboard + company portal"]].map(([code, title, desc]) => (
-            <div key={code} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "0 8px" }}>
-              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(6,182,212,0.15)", border: "1.5px solid #06b6d4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#06b6d4", fontFamily: "JetBrains Mono, monospace", position: "relative", zIndex: 2 }}>{code}</div>
+          {[
+            [<DownloadCloud key="sc" size={16} />, "Scrape", "Selenium ETL from NLDC portal every 15 min"],
+            [<FileSearch key="ex" size={16} />, "Extract", "Parquet feature store with lag & calendar vars"],
+            [<Filter key="cl" size={16} />, "Clean", "Z-score anomaly detect + gap interpolation"],
+            [<Cpu key="ml" size={16} />, "Train", "XGBoost + LSTM on 2-yr NRLDC data"],
+            [<Server key="api" size={16} />, "Serve", "Flask REST · P95 latency <1ms"],
+            [<Eye key="ui" size={16} />, "Visualise", "Operator dashboard + company portal"]
+          ].map(([icon, title, desc]) => (
+            <div key={title as string} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "0 8px" }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(6,182,212,0.15)", border: "1.5px solid #06b6d4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#06b6d4", fontFamily: "JetBrains Mono, monospace", position: "relative", zIndex: 2 }}>{icon}</div>
               <div style={{ fontWeight: 600, fontSize: 13, textAlign: "center" }}>{title}</div>
               <div style={{ fontSize: 11, color: "#64748b", textAlign: "center", lineHeight: 1.55 }}>{desc}</div>
             </div>
@@ -823,8 +883,14 @@ function LandingPage({ onNavigate }: { onNavigate: (p: string) => void }) {
           <h2 style={{ fontSize: 38, fontWeight: 700, letterSpacing: "-1px" }}>Results that matter</h2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginBottom: 56 }}>
-          {[["-30%", "Reserve capacity waste"], ["<3%", "24hr MAPE target"], ["96×", "Decisions per day"], ["<1ms", "API inference latency"]].map(([val, label]) => (
+          {[
+            ["-30%", "Reserve capacity waste", <TrendingDown key="td" size={24} />],
+            ["<3%", "24hr MAPE target", <Target key="tg" size={24} />],
+            ["96×", "Decisions per day", <Zap key="zp" size={24} />],
+            ["<1ms", "API inference latency", <Activity key="ac" size={24} />]
+          ].map(([val, label, icon]) => (
             <div key={String(label)} className="gc-card gc-card-glow" style={{ padding: 28, textAlign: "center" }}>
+              <div style={{ color: "#06b6d4", marginBottom: 12, display: "flex", justifyContent: "center" }}>{icon}</div>
               <div style={{ fontSize: 34, fontWeight: 700, color: "#06b6d4", fontFamily: "JetBrains Mono, monospace" }}>{val}</div>
               <div style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>{label}</div>
             </div>
@@ -839,9 +905,16 @@ function LandingPage({ onNavigate }: { onNavigate: (p: string) => void }) {
           <h2 style={{ fontSize: 38, fontWeight: 700, letterSpacing: "-1px" }}>Production-grade infrastructure</h2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-          {[["XGBoost", "Gradient-boosted forecasting with SHAP explainability. 96-step autoregressive rollout.", "#f59e0b"], ["Pandas / Parquet", "Feature store with lag, rolling stats, and calendar features. Sub-100ms load time.", "#06b6d4"], ["Flask REST API", "P95 latency <1ms. Joblib model serialization. Docker-ready deployment.", "#10b981"], ["Selenium ETL", "Automated NLDC data scraping every 15 minutes. Retry logic and gap filling.", "#a78bfa"], ["SVG Dashboard", "Pure SVG visualisations. Zero-dependency, works offline on operator terminals.", "#06b6d4"], ["LSTM (Planned)", "PyTorch sequence model for long-range patterns. Captures weekly seasonality across 96+ steps.", "#f59e0b"]].map(([title, desc, color]) => (
+          {[
+            ["XGBoost", "Gradient-boosted forecasting with SHAP explainability. 96-step autoregressive rollout.", "#f59e0b", <TrendingUp key="xgb" size={20} />],
+            ["Pandas / Parquet", "Feature store with lag, rolling stats, and calendar features. Sub-100ms load time.", "#06b6d4", <HardDrive key="pd" size={20} />],
+            ["Flask REST API", "P95 latency <1ms. Joblib model serialization. Docker-ready deployment.", "#10b981", <Server key="flask" size={20} />],
+            ["Selenium ETL", "Automated NLDC data scraping every 15 minutes. Retry logic and gap filling.", "#a78bfa", <Code2 key="sel" size={20} />],
+            ["SVG Dashboard", "Pure SVG visualisations. Zero-dependency, works offline on operator terminals.", "#06b6d4", <Layers key="svg" size={20} />],
+            ["LSTM (Planned)", "PyTorch sequence model for long-range patterns. Captures weekly seasonality across 96+ steps.", "#f59e0b", <Cpu key="lstm" size={20} />]
+          ].map(([title, desc, color, icon]) => (
             <div key={String(title)} className="gc-card" style={{ padding: 24 }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, marginBottom: 14 }} />
+              <div style={{ color: color as string, marginBottom: 14 }}>{icon}</div>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>{title}</div>
               <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.65 }}>{desc}</div>
             </div>
@@ -894,13 +967,6 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
     }
   };
 
-  const fillDemo = () => {
-    if (!mode) return;
-    const creds = DEMO_CREDS[mode];
-    setForm({ email: creds.email, password: creds.password });
-    setError("");
-  };
-
   return (
     <div style={{ minHeight: "100vh", background: "#020f1a", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif", position: "relative", overflow: "hidden" }}>
       <nav style={{ position: "absolute", top: 0, left: 0, right: 0, height: 62, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", borderBottom: "1px solid rgba(6,182,212,0.15)", background: "rgba(2,15,26,0.84)", backdropFilter: "blur(8px)", zIndex: 4 }}>
@@ -911,8 +977,8 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 12, color: "#64748b" }}>Secure Access Portal</span>
           <button style={{ background: "transparent", border: "1px solid rgba(100,116,139,0.35)", borderRadius: 999, color: "#94a3b8", padding: "6px 12px", fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>Need Help</button>
-          <button onClick={() => onNavigate("landing")} className="gc-btn gc-btn-ghost" style={{ padding: "7px 14px", fontSize: 12 }}>
-            ← Back to Landing
+          <button onClick={() => onNavigate("landing")} className="gc-btn gc-btn-ghost" style={{ padding: "7px 14px", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+            <ArrowLeft size={14} /> Back to Landing
           </button>
         </div>
       </nav>
@@ -924,13 +990,6 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
         {[200, 600, 1000].map(x => (
           <polyline key={x} points={`${x},0 ${x - 20},200 ${x + 15},220 ${x - 10},400`} fill="none" stroke="#06b6d4" strokeWidth="1.5" style={{ animation: `gc-lightning ${3 + x / 400}s ${x / 600}s infinite` }} />
         ))}
-        {[150, 500, 850].map(x => (
-          <g key={x} opacity="0.45">
-            <line x1={x} y1={600} x2={x} y2={500} stroke="#0e7490" strokeWidth="2" />
-            <line x1={x - 30} y1={520} x2={x + 30} y2={520} stroke="#0e7490" strokeWidth="1.5" />
-            <line x1={x - 15} y1={540} x2={x + 15} y2={540} stroke="#0e7490" strokeWidth="1" />
-          </g>
-        ))}
       </svg>
 
       {/* Glass card */}
@@ -938,7 +997,7 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b", animation: "gc-pulse-ring 2s infinite" }} />
-            <span style={{ fontWeight: 700, fontSize: 22, color: "#e2e8f0" }}>Grid<span style={{ color: "#06b6d4" }}>Cast</span></span>
+            <span style={{ fontWeight: 800, fontSize: 22, color: "#e2e8f0", letterSpacing: "-1px" }}>Grid<span style={{ color: "#06b6d4" }}>Cast</span></span>
           </div>
           <p style={{ fontSize: 13, color: "#64748b" }}>AI-powered grid forecasting platform</p>
         </div>
@@ -947,41 +1006,52 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
           <>
             <p style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", marginBottom: 20 }}>Select your access type to continue</p>
             <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
-              {[{ id: "admin" as const, icon: "🔧", title: "Admin", sub: "Grid operators, NLDC engineers, system administrators" }, { id: "company" as const, icon: "🏢", title: "Company", sub: "Industrial consumers, data centers, large enterprises" }].map(({ id, icon, title, sub }) => (
-                <button key={id} onClick={() => { setMode(id); setError(""); setForm({ email: DEMO_CREDS[id].email, password: DEMO_CREDS[id].password }); }}
-                  style={{ flex: 1, border: "1.5px solid rgba(6,182,212,0.2)", borderRadius: 14, padding: "28px 20px", cursor: "pointer", textAlign: "center", background: "transparent", color: "#e2e8f0", fontFamily: "inherit", transition: "all 0.25s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(6,182,212,0.6)"; (e.currentTarget as HTMLButtonElement).style.background = "rgba(6,182,212,0.07)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(6,182,212,0.2)"; (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}>
-                  <div style={{ fontSize: 30, marginBottom: 10 }}>{icon}</div>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{title}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>{sub}</div>
-                </button>
-              ))}
+              <button onClick={() => { setMode("admin"); setError(""); setForm({ email: DEMO_CREDS.admin.email, password: DEMO_CREDS.admin.password }); }}
+                style={{ flex: 1, border: "1.5px solid rgba(6, 182, 212, 0.2)", borderRadius: 14, padding: "28px 20px", cursor: "pointer", textAlign: "center", background: "transparent", color: "#e2e8f0", fontFamily: "inherit", transition: "all 0.25s" }}>
+                <ShieldCheck size={32} color="#06b6d4" style={{ marginBottom: 12 }} />
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>Admin</div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>Operators & Engineers</div>
+              </button>
+              <button onClick={() => { setMode("company"); setError(""); setForm({ email: DEMO_CREDS.company.email, password: DEMO_CREDS.company.password }); }}
+                style={{ flex: 1, border: "1.5px solid rgba(6, 182, 212, 0.2)", borderRadius: 14, padding: "28px 20px", cursor: "pointer", textAlign: "center", background: "transparent", color: "#e2e8f0", fontFamily: "inherit", transition: "all 0.25s" }}>
+                <Building2 size={32} color="#f59e0b" style={{ marginBottom: 12 }} />
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>Company</div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>Large Enterprises</div>
+              </button>
             </div>
           </>
         ) : (
           <>
-            <button onClick={() => { setMode(null); setError(""); }} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 13, marginBottom: 20, fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6, padding: 0 }}>← Back</button>
+            <button onClick={() => { setMode(null); setError(""); }} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 13, marginBottom: 20, fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6, padding: 0 }}>
+              <ArrowLeft size={14} /> Back
+            </button>
             <DemoBanner mode={mode} />
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-              <span style={{ fontSize: 20 }}>{mode === "admin" ? "🔧" : "🏢"}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+              {mode === "admin" ? <ShieldCheck size={24} color="#06b6d4" /> : <Building2 size={24} color="#f59e0b" />}
               <div>
                 <div style={{ fontWeight: 600, color: "#e2e8f0" }}>{mode === "admin" ? "Admin Login" : "Company Login"}</div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>{mode === "admin" ? "Grid operator access · NRLDC" : "Industrial consumer access"}</div>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16 }}>
-              <input className="gc-input" type="email" placeholder={DEMO_CREDS[mode].email} value={form.email} onChange={e => { setForm({ ...form, email: e.target.value }); setError(""); }} onKeyDown={e => e.key === "Enter" && handleLogin()} />
-              <input className="gc-input" type="password" placeholder="Password" value={form.password} onChange={e => { setForm({ ...form, password: e.target.value }); setError(""); }} onKeyDown={e => e.key === "Enter" && handleLogin()} />
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 24 }}>
+              <div style={{ position: "relative" }}>
+                <Mail size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569" }} />
+                <input style={{ ...inputSt, paddingLeft: 40 }} placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+              </div>
+              <div style={{ position: "relative" }}>
+                <Terminal size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569" }} />
+                <input type="password" style={{ ...inputSt, paddingLeft: 40 }} placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+              </div>
             </div>
-            {error && <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#fca5a5", marginBottom: 14 }}>{error}</div>}
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#64748b", marginBottom: 20 }}>
-              <button onClick={fillDemo} style={{ background: "none", border: "none", color: "#06b6d4", cursor: "pointer", fontSize: 12, fontFamily: "inherit", padding: 0 }}>Use demo credentials</button>
-              <span style={{ color: "#06b6d4", cursor: "pointer" }}>Forgot password?</span>
-            </div>
+
+            {error && <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 12px", color: "#ef4444", fontSize: 12, marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+              <Activity size={14} /> {error}
+            </div>}
+
             <button onClick={handleLogin} disabled={loading}
-              style={{ width: "100%", background: loading ? "#0e7490" : "#06b6d4", color: "#020f1a", border: "none", padding: "13px", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: loading ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit" }}>
-              {loading ? "Authenticating…" : mode === "admin" ? "Sign In as Admin →" : "Sign In as Company →"}
+              style={{ width: "100%", background: loading ? "#0e7490" : "#06b6d4", color: "#020f1a", border: "none", padding: "14px", borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: loading ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 8px 24px rgba(6,182,212,0.2)" }}>
+              {loading ? "Authenticating…" : "Sign In Access"}
             </button>
           </>
         )}
@@ -989,7 +1059,6 @@ function LoginPage({ onNavigate }: { onNavigate: (p: string) => void }) {
     </div>
   );
 }
-
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGE: ONBOARDING FORM
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1000,7 +1069,6 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
   const industryDef = INDUSTRY_TYPES.find(i => i.value === formData.industry);
   const STEPS = ["Company Profile", "Electricity Setup", "Goals & Sustainability"];
 
-  const inputSt = { background: "rgba(6,182,212,0.05)", border: "1px solid rgba(6,182,212,0.2)", borderRadius: 8, padding: "11px 14px", color: "#e2e8f0", fontSize: 14, width: "100%", fontFamily: "inherit", outline: "none" };
 
   return (
     <div style={{ minHeight: "100vh", background: "#020f1a", fontFamily: "Space Grotesk, sans-serif", color: "#e2e8f0" }}>
@@ -1043,7 +1111,7 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
                     <option value="">Select your industry…</option>
                     {INDUSTRY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
-                  {industryDef && <div style={{ marginTop: 10, background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.15)", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#94a3b8" }}>⚡ Typical base load: <span style={{ color: "#06b6d4", fontFamily: "JetBrains Mono" }}>{industryDef.baseLoad} MW</span> · PUE: <span style={{ color: "#f59e0b", fontFamily: "JetBrains Mono" }}>{industryDef.pue}</span></div>}
+                  {industryDef && <div style={{ marginTop: 10, background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.15)", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}><Zap size={14} color="#06b6d4" /> Typical base load: <span style={{ color: "#06b6d4", fontFamily: "JetBrains Mono" }}>{industryDef.baseLoad} MW</span> · PUE: <span style={{ color: "#f59e0b", fontFamily: "JetBrains Mono" }}>{industryDef.pue}</span></div>}
                 </div>
                 <div>
                   <label className="gc-label">Grid Region</label>
@@ -1101,7 +1169,7 @@ function CompanyFormPage({ onNavigate }: { onNavigate: (p: string) => void }) {
                   <label className="gc-label">Annual Electricity Budget</label>
                   <select className="gc-select" style={{ ...inputSt, cursor: "pointer" }} value={formData.budgetRange} onChange={e => update("budgetRange", e.target.value)}>
                     <option value="">Select range…</option>
-                    <option>₹1–5 Cr / year</option><option>₹5–25 Cr / year</option><option>₹25–100 Cr / year</option><option>₹100 Cr+ / year</option>
+                    <option>INR 1-5 Cr / year</option><option>INR 5-25 Cr / year</option><option>INR 25-100 Cr / year</option><option>INR 100 Cr+ / year</option>
                   </select>
                 </div>
                 <div>
@@ -1181,17 +1249,17 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
   const modelLabel = model === "xgboost" ? "XGBoost" : "LSTM";
 
   const kpiCards = [
-    { label: "CO₂ Avoided (MTD)", value: (co2Saved / 12).toFixed(1), unit: "tCO₂", color: "#10b981", icon: "🌿", trend: "+8.2% vs last month" },
-    { label: "Energy Optimised (MTD)", value: (savingsMWh / 12).toFixed(0), unit: "MWh", color: "#06b6d4", icon: "⚡", trend: "+12.1% vs last month" },
-    { label: "Cost Saved (MTD)", value: `₹${((inrSaved / 12) / 100000).toFixed(1)}L`, unit: "", color: "#f59e0b", icon: "💰", trend: "+9.5% vs last month" },
-    { label: "Grid Carbon Intensity", value: "0.716", unit: "tCO₂/MWh", color: "#a78bfa", icon: "📊", trend: "CEA FY2022-23 baseline" },
-    { label: "Renewable Share", value: "22", unit: "%", color: "#10b981", icon: "☀️", trend: "Target: 40% by 2027" },
+    { label: "CO₂ Avoided (MTD)", value: (co2Saved / 12).toFixed(1), unit: "tCO₂", color: "#10b981", icon: <Leaf size={18} />, trend: "+8.2% vs last month" },
+    { label: "Energy Optimised (MTD)", value: (savingsMWh / 12).toFixed(0), unit: "MWh", color: "#06b6d4", icon: <Zap size={18} />, trend: "+12.1% vs last month" },
+    { label: "Cost Saved (MTD)", value: `₹${((inrSaved / 12) / 100000).toFixed(1)}L`, unit: "", color: "#f59e0b", icon: <DollarSign size={18} />, trend: "+9.5% vs last month" },
+    { label: "Grid Carbon Intensity", value: "0.716", unit: "tCO₂/MWh", color: "#a78bfa", icon: <Activity size={18} />, trend: "CEA FY2022-23 baseline" },
+    { label: "Renewable Share", value: "22", unit: "%", color: "#10b981", icon: <Sun size={18} />, trend: "Target: 40% by 2027" },
     {
       label: "Forecast Accuracy",
       value: metrics.mape !== null ? (100 - metrics.mape).toFixed(1) : "N/A",
       unit: metrics.mape !== null ? "%" : "",
       color: modelColor,
-      icon: "🎯",
+      icon: <Target size={18} />,
       trend:
         metrics.mape !== null
           ? `MAPE ${metrics.mape.toFixed(2)}% · ${horizon} · ${modelLabel}`
@@ -1199,7 +1267,13 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
     },
   ];
 
-  const NAV_ITEMS = [["📊", "Overview", "overview"], ["⚡", "Load Forecast", "forecast"], ["🌿", "Carbon Tracker", "carbon"], ["📅", "Schedule Optimizer", "schedule"], ["📄", "Reports", "reports"]];
+  const NAV_ITEMS = [
+    { icon: <LayoutDashboard size={16} />, label: "Overview", id: "overview" },
+    { icon: <TrendingUp size={16} />, label: "Load Forecast", id: "forecast" },
+    { icon: <Leaf size={16} />, label: "Carbon Tracker", id: "carbon" },
+    { icon: <Clock size={16} />, label: "Schedule Optimizer", id: "schedule" },
+    { icon: <FileText size={16} />, label: "Reports", id: "reports" }
+  ];
 
   return (
     <div style={{ minHeight: "100vh", background: "#020f1a", fontFamily: "Space Grotesk, sans-serif", color: "#e2e8f0", display: "flex" }}>
@@ -1210,9 +1284,9 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
           <span style={{ fontWeight: 700, fontSize: 16 }}>Grid<span style={{ color: "#06b6d4" }}>Cast</span></span>
         </div>
         <div style={{ fontSize: 10, color: "#334155", letterSpacing: 2, textTransform: "uppercase", marginBottom: 2, paddingLeft: 12 }}>Navigation</div>
-        {NAV_ITEMS.map(([icon, label, id]) => (
-          <button key={id} onClick={() => setActiveTab(id)} className={`gc-sidebar-item${activeTab === id ? " is-active" : ""}`}>
-            <span style={{ fontSize: 15 }}>{icon}</span>{label}
+        {NAV_ITEMS.map((item) => (
+          <button key={item.id} onClick={() => setActiveTab(item.id)} className={`gc-sidebar-item${activeTab === item.id ? " is-active" : ""}`}>
+            {item.icon} {item.label}
           </button>
         ))}
         <div style={{ flex: 1 }} />
@@ -1235,8 +1309,8 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
           {/* Topbar */}
           <div style={{ borderBottom: "1px solid rgba(6,182,212,0.1)", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(2,10,20,0.82)", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 10 }}>
             <div style={{ display: "flex", gap: 4 }}>
-              {NAV_ITEMS.map(([icon, label, id]) => (
-                <button key={id} onClick={() => setActiveTab(id)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: activeTab === id ? "rgba(6,182,212,0.12)" : "transparent", color: activeTab === id ? "#06b6d4" : "#64748b", fontSize: 13, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>{icon} {label}</button>
+              {NAV_ITEMS.map((item) => (
+                <button key={item.id} onClick={() => setActiveTab(item.id)} style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: activeTab === item.id ? "rgba(6, 182, 212, 0.12)" : "transparent", color: activeTab === item.id ? "#06b6d4" : "#64748b", fontSize: 13, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6 }}>{item.icon} {item.label}</button>
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -1296,7 +1370,7 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                     <div key={k.label} className="gc-kpi">
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                         <span style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>{k.label}</span>
-                        <span style={{ fontSize: 18 }}>{k.icon}</span>
+                        <div style={{ color: k.color }}>{k.icon}</div>
                       </div>
                       <div style={{ fontSize: 28, fontWeight: 700, color: k.color, fontFamily: "JetBrains Mono, monospace", letterSpacing: "-1px" }}>
                         {k.value}<span style={{ fontSize: 13, marginLeft: 4 }}>{k.unit}</span>
@@ -1328,12 +1402,17 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                   </div>
                   <div className="gc-card" style={{ padding: 22 }}>
                     <div style={{ fontWeight: 600, marginBottom: 18 }}>CO₂ Equivalents Avoided</div>
-                    {[[`${treesEquiv.toLocaleString("en-IN")}`, "Trees grown for 10 yrs", "🌳", "#10b981"], [`${homeEquiv.toLocaleString("en-IN")}`, "Indian homes powered / yr", "🏠", "#06b6d4"], [`${(co2Saved / 2.31).toFixed(0)}`, "Cars off road for 1 yr", "🚗", "#f59e0b"], [`${(co2Saved * 0.1).toFixed(1)} t`, "Coal not burned", "🏭", "#a78bfa"]].map(([val, label, icon, color]) => (
-                      <div key={String(label)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #0f1e2e" }}>
-                        <span style={{ fontSize: 20 }}>{icon}</span>
+                    {[
+                      [`${treesEquiv.toLocaleString("en-IN")}`, "Trees grown for 10 yrs", <Leaf size={18} />, "#10b981"],
+                      [`${homeEquiv.toLocaleString("en-IN")}`, "Indian homes powered / yr", <Home size={18} />, "#06b6d4"],
+                      [`${(co2Saved / 2.31).toFixed(0)}`, "Cars off road for 1 yr", <Car size={18} />, "#f59e0b"],
+                      [`${(co2Saved * 0.1).toFixed(1)} t`, "Coal not burned", <Factory size={18} />, "#a78bfa"]
+                    ].map(([val, label, icon, color]) => (
+                      <div key={label as string} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #0f1e2e" }}>
+                        <div style={{ color: color as string }}>{icon}</div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 15, fontWeight: 700, color, fontFamily: "JetBrains Mono, monospace" }}>{val}</div>
-                          <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: color as string, fontFamily: "JetBrains Mono, monospace" }}>{val}</div>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>{label as string}</div>
                         </div>
                       </div>
                     ))}
@@ -1478,9 +1557,9 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                         })}
                       </div>
                       <div style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 10 }}>
-                        <span style={{ color: "#10b981" }}>■ Low (01–05h)</span>
-                        <span style={{ color: "#f59e0b" }}>■ Medium</span>
-                        <span style={{ color: "#ef4444" }}>■ Peak</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#10b981" }}><div style={{ width: 8, height: 8, background: "#10b981" }} /> Low (01–05h)</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#f59e0b" }}><div style={{ width: 8, height: 8, background: "#f59e0b" }} /> Medium</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#ef4444" }}><div style={{ width: 8, height: 8, background: "#ef4444" }} /> Peak</span>
                       </div>
                     </div>
                   </div>
@@ -1520,9 +1599,14 @@ function CompanyDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               <>
                 <div style={{ marginBottom: 24 }}><h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Reports & Compliance</h1><p style={{ color: "#64748b", fontSize: 13 }}>Download GHG inventory reports, BEE compliance summaries, and grid interaction logs.</p></div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-                  {[["📊", "Monthly Energy Report", "April 2026 · PDF", "GHG inventory, load curve, savings summary"], ["🌿", "Scope 2 Carbon Report", "Q1 2026 · PDF", "CEA-compliant carbon accounting"], ["📋", "BEE PAT Compliance", "FY2025-26 · XLSX", "Bureau of Energy Efficiency PAT data"], ["⚡", "Grid Interaction Log", "April 23 · CSV", "15-min demand & export data"]].map(([icon, title, meta, desc]) => (
-                    <div key={String(title)} className="gc-card" style={{ padding: 22, display: "flex", gap: 16, alignItems: "flex-start", cursor: "pointer" }}>
-                      <span style={{ fontSize: 26 }}>{icon}</span>
+                  {[
+                    [<BarChart key="m" size={26} />, "Monthly Energy Report", "April 2026 · PDF", "GHG inventory, load curve, savings summary"],
+                    [<Leaf key="c" size={26} />, "Scope 2 Carbon Report", "Q1 2026 · PDF", "CEA-compliant carbon accounting"],
+                    [<FileText key="b" size={26} />, "BEE PAT Compliance", "FY2025-26 · XLSX", "Bureau of Energy Efficiency PAT data"],
+                    [<Zap key="g" size={26} />, "Grid Interaction Log", "April 23 · CSV", "15-min demand & export data"]
+                  ].map(([icon, title, meta, desc]) => (
+                    <div key={title as string} className="gc-card" style={{ padding: 22, display: "flex", gap: 16, alignItems: "flex-start", cursor: "pointer" }}>
+                      <span style={{ color: "var(--gc-cyan)" }}>{icon}</span>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>{title}</div>
                         <div style={{ fontSize: 11, color: "#06b6d4", marginBottom: 4, fontFamily: "JetBrains Mono" }}>{meta}</div>
@@ -1600,12 +1684,12 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
   }
 
   return (
-    <div className="gc-admin-root" style={{ background: '#ffffff', minHeight: '100vh', color: '#1e293b', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="gc-admin-root gc-theme-light" style={{ background: 'var(--gc-bg)', minHeight: '100vh', color: 'var(--gc-text)', fontFamily: 'var(--gc-font-sans)' }}>
       {/* Navbar */}
-      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ background: 'rgba(255, 255, 255, 0.8)', borderBottom: '1px solid #e2e8f0', backdropFilter: 'blur(10px)', height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 32 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d97706' }} />
-          <span style={{ fontWeight: 800, fontSize: 16, color: '#003d99', letterSpacing: '-0.02em' }}>Grid<span style={{ color: '#003d99' }}>Cast</span> Admin</span>
+          <div className="gc-logo-dot" />
+          <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--gc-text)', letterSpacing: '-0.02em' }}>Grid<span style={{ color: '#06b6d4' }}>Cast</span> Admin</span>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
           {['Forecast', 'Analysis', 'Models', 'Reports'].map(t => (
@@ -1613,7 +1697,7 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               key={t}
               onClick={() => setActiveTab(t.toLowerCase())}
               style={{
-                padding: '5px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, border: 'none', background: activeTab === t.toLowerCase() ? '#f0f4fb' : 'transparent', color: activeTab === t.toLowerCase() ? '#003d99' : '#64748b', cursor: 'pointer', transition: 'all 0.2s'
+                padding: '5px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, border: 'none', background: activeTab === t.toLowerCase() ? 'rgba(6, 182, 212, 0.12)' : 'transparent', color: activeTab === t.toLowerCase() ? '#06b6d4' : '#64748b', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit'
               }}
             >
               {t}
@@ -1622,14 +1706,16 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
         </div>
         <div style={{ flex: 1 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => onNavigate('login')} style={{ background: 'transparent', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', color: '#64748b', cursor: 'pointer' }}>← Exit</button>
+          <button onClick={() => onNavigate('login')} style={{ background: 'transparent', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <LogOut size={14} /> Exit
+          </button>
         </div>
       </nav>
 
       <div style={{ display: 'flex', height: 'calc(100vh - 52px)' }}>
         {/* Sidebar */}
-        <aside style={{ width: 220, background: '#ffffff', borderRight: '1px solid #e2e8f0', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Predictive Engine</div>
+        <aside style={{ width: 220, background: '#f8fafc', borderRight: '1px solid #e2e8f0', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Predictive Engine</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
             {(['xgboost', 'lstm'] as ModelType[]).map(m => (
               <div
@@ -1638,19 +1724,19 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                 style={{
                   height: 40, borderRadius: '8px', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10, fontSize: '13px', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeModel === m ? '#f0f4fb' : 'transparent',
-                  color: activeModel === m ? '#003d99' : '#64748b',
-                  border: activeModel === m ? '1px solid #dbeafe' : '1px solid transparent'
+                  background: activeModel === m ? 'rgba(6, 182, 212, 0.1)' : 'transparent',
+                  color: activeModel === m ? '#06b6d4' : '#64748b',
+                  border: activeModel === m ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent'
                 }}
               >
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: MODEL_CONFIGS[m].color }} />
                 <span>{MODEL_CONFIGS[m].name}</span>
-                {activeModel === m && <span style={{ marginLeft: 'auto', fontSize: '10px', background: '#dbeafe', padding: '2px 6px', borderRadius: '4px' }}>Active</span>}
+                {activeModel === m && <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', padding: '2px 6px', borderRadius: '4px' }}>Active</span>}
               </div>
             ))}
           </div>
 
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Forecast Horizon</div>
+          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Forecast Horizon</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
             {(['24h', '48h', '72h'] as Horizon[]).map(h => (
               <div
@@ -1659,49 +1745,49 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                 style={{
                   height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10, fontSize: '13px', fontWeight: 500,
                   cursor: 'pointer', transition: 'all 0.2s',
-                  background: activeHorizon === h ? '#f8fafc' : 'transparent',
-                  color: activeHorizon === h ? '#003d99' : '#64748b',
-                  border: activeHorizon === h ? '1px solid #e2e8f0' : '1px solid transparent'
+                  background: activeHorizon === h ? 'rgba(148, 163, 184, 0.05)' : 'transparent',
+                  color: activeHorizon === h ? 'var(--gc-text)' : '#64748b',
+                  border: activeHorizon === h ? '1px solid rgba(148, 163, 184, 0.2)' : '1px solid transparent'
                 }}
               >
-                <span style={{ opacity: activeHorizon === h ? 1 : 0.5 }}>🕒</span>
+                <Clock size={14} style={{ opacity: activeHorizon === h ? 1 : 0.5 }} />
                 <span>{h} Window</span>
               </div>
             ))}
           </div>
 
-          <div style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Regions</div>
+          <div style={{ fontSize: '10px', fontWeight: 600, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase', padding: '8px 8px 4px' }}>Regions</div>
           {REGIONS.map(r => (
             <div
               key={r.id}
               style={{
-                height: 32, borderRadius: '7px', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 8, fontSize: '13px', fontWeight: 500, color: r.id === 'north' ? '#003d99' : '#64748b', background: r.id === 'north' ? '#f0f4fb' : 'transparent', cursor: 'pointer'
+                height: 32, borderRadius: '7px', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 8, fontSize: '13px', fontWeight: 500, color: r.id === 'north' ? '#06b6d4' : '#64748b', background: r.id === 'north' ? 'rgba(6, 182, 212, 0.08)' : 'transparent', cursor: 'pointer'
               }}
             >
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: r.id === 'north' ? '#003d99' : '#cbd5e1' }} />
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: r.id === 'north' ? '#06b6d4' : '#1e3a4a' }} />
               <span>{r.label.split(' ')[0]}</span>
             </div>
           ))}
         </aside>
 
         {/* Main Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px', background: '#f8fafc' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '24px', background: 'var(--gc-bg)' }}>
           {activeTab === 'forecast' && (
             <>
               {/* KPIs */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Accuracy MAPE', value: loading ? '...' : `${currentData?.horizon_metrics[activeHorizon]?.mape?.toFixed(2) ?? '--'}%`, icon: '🎯', color: (currentData?.horizon_metrics[activeHorizon]?.mape ?? 10) < 3 ? '#059669' : '#d97706' },
-                  { label: 'Predicted Peak', value: loading ? '...' : `${Math.max(...(currentData?.forecast.map(p => p.load_mw) ?? [0])).toLocaleString()} MW`, icon: '📈', color: '#003d99' },
-                  { label: 'Engine Latency', value: '1.2s', icon: '⚡', color: '#64748b' },
-                  { label: 'Last Sync', value: loading ? '...' : currentData ? new Date(currentData.generated_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--', icon: '🔄', color: '#003d99' }
+                  { label: 'Accuracy MAPE', value: loading ? '...' : `${currentData?.horizon_metrics[activeHorizon]?.mape?.toFixed(2) ?? '--'}%`, icon: <Target size={18} />, color: (currentData?.horizon_metrics[activeHorizon]?.mape ?? 10) < 3 ? '#10b981' : '#f59e0b' },
+                  { label: 'Predicted Peak', value: loading ? '...' : `${Math.max(...(currentData?.forecast.map(p => p.load_mw) ?? [0])).toLocaleString()} MW`, icon: <TrendingUp size={18} />, color: '#06b6d4' },
+                  { label: 'Engine Latency', value: '1.2s', icon: <Zap size={18} />, color: '#94a3b8' },
+                  { label: 'Last Sync', value: loading ? '...' : currentData ? new Date(currentData.generated_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--', icon: <RefreshCw size={18} />, color: '#06b6d4' }
                 ].map(k => (
-                  <div key={k.label} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</span>
-                      <span>{k.icon}</span>
+                  <div key={k.label} className="gc-card" style={{ padding: '18px', background: '#ffffff', borderColor: '#e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</span>
+                      <div style={{ color: k.color }}>{k.icon}</div>
                     </div>
-                    <div style={{ fontSize: '20px', fontWeight: 700, color: k.color, fontFamily: 'JetBrains Mono' }}>{k.value}</div>
+                    <div style={{ fontSize: '22px', fontWeight: 700, color: k.color, fontFamily: 'var(--gc-font-mono)', letterSpacing: '-0.5px' }}>{k.value}</div>
                   </div>
                 ))}
               </div>
@@ -1713,19 +1799,6 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <ModelComparison xgboostData={xgboostData} lstmData={lstmData} horizon={activeHorizon} loading={loading} />
-                  <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', flex: 1 }}>
-                    <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99' }}>Status Log</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div style={{ padding: '10px', background: '#ecfdf5', border: '1px solid #d1fae5', borderRadius: '8px', fontSize: '12px' }}>
-                        <span style={{ color: '#059669', fontWeight: 700 }}>● {activeModel.toUpperCase()} Stable</span>
-                        <p style={{ color: '#64748b', marginTop: '2px' }}>Latest forecast successfully generated.</p>
-                      </div>
-                      <div style={{ padding: '10px', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', fontSize: '12px' }}>
-                        <span style={{ color: '#d97706', fontWeight: 700 }}>⚠ Peak Alert</span>
-                        <p style={{ color: '#64748b', marginTop: '2px' }}>Predicted peak within 95% of capacity.</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -1743,38 +1816,38 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99' }}>Error Pattern Insights</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Morning transition slots show higher variance than mid-day.</span>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> Error Pattern Insights</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
+                      <span>Morning transition slots show higher variance than mid-day due to solar ramp-up.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Weekday peaks remain more stable than weekend peaks.</span>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
+                      <span>Weekday peaks remain more stable than weekend peaks for industrial nodes.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Backtest heatmap remains primary source for slot-level reliability.</span>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#003d99', marginTop: 6, flexShrink: 0 }} />
+                      <span>Backtest heatmap remains primary source for slot-level reliability analysis.</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99' }}>Operational Notes</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Monitor high-demand windows around peak ramp-up hours.</span>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><Layers size={16} /> Operational Notes</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
+                      <span>Monitor high-demand windows around peak ramp-up hours (06:00–09:00).</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Cross-check abnormal spikes with weather and holiday signals.</span>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
+                      <span>Cross-check abnormal spikes with regional weather and holiday signals.</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569' }}>
-                      <span style={{ color: '#003d99' }}>•</span>
-                      <span>Re-run training after material demand pattern shifts.</span>
+                    <div style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', marginTop: 6, flexShrink: 0 }} />
+                      <span>Re-run training pipeline after material demand pattern shifts in industrial clusters.</span>
                     </div>
                   </div>
                 </div>
@@ -1789,21 +1862,21 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
                 <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Status and readiness of forecasting pipelines</p>
               </div>
 
-              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
                   <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#003d99' }}>Model Readiness Matrix</h3>
                 </div>
                 <div>
                   {[
-                    { name: 'XGBoost', type: 'Production model · Season-aware features', color: '#4c79b8', status: 'Active', statusColor: '#ecfdf5', textColor: '#059669' },
-                    { name: 'LSTM', type: 'Sequence model · Direct multi-step output · Bidirectional', color: '#7C3AED', status: 'Active', statusColor: '#f5f3ff', textColor: '#7C3AED' },
-                    { name: 'Linear Regression', type: 'Baseline benchmark for drift checks', color: '#10b981', status: 'Baseline', statusColor: '#f8fafc', textColor: '#64748b' }
+                    { name: 'XGBoost', type: 'Production model · Season-aware features', color: '#4c79b8', status: 'Active', statusColor: 'rgba(16, 185, 129, 0.1)', textColor: '#10b981' },
+                    { name: 'LSTM', type: 'Sequence model · Direct multi-step output · Bidirectional', color: '#7C3AED', status: 'Active', statusColor: 'rgba(167, 139, 250, 0.1)', textColor: '#a78bfa' },
+                    { name: 'Linear Regression', type: 'Baseline benchmark for drift checks', color: '#94a3b8', status: 'Baseline', statusColor: 'rgba(148, 163, 184, 0.1)', textColor: '#94a3b8' }
                   ].map((m, i) => (
                     <div key={m.name} style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: i === 2 ? 'none' : '1px solid #f1f5f9' }}>
                       <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: m.color, marginRight: '16px' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>{m.name}</div>
-                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{m.type}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{m.name}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{m.type}</div>
                       </div>
                       <div style={{ padding: '4px 10px', background: m.statusColor, borderRadius: '20px', fontSize: '11px', fontWeight: 700, color: m.textColor, border: `1px solid ${m.textColor}20` }}>
                         {m.status}
@@ -1823,24 +1896,24 @@ function AdminDashboard({ onNavigate }: { onNavigate: (p: string) => void }) {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99' }}>Forecast Reporting</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• Daily forecast snapshot with peak/trough summary.</div>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• Weekly accuracy digest for stakeholder review.</div>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• CSV export available from Forecast tab.</div>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><BarChart size={16} /> Forecast Reporting</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Daily forecast snapshot with peak/trough summary.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Weekly accuracy digest for stakeholder review.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>CSV export available from Forecast tab.</span></div>
                   </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>Generate Full Digest</button>
+                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>Generate Full Digest</button>
                 </div>
 
-                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99' }}>Model Governance</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• Log model performance against rolling benchmarks.</div>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• Maintain retraining notes and data coverage updates.</div>
-                    <div style={{ fontSize: '13px', color: '#475569' }}>• Use residual heatmap trends for exception reporting.</div>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', color: '#003d99', display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={16} /> Model Governance</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Log model performance against rolling benchmarks.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Maintain retraining notes and data coverage updates.</span></div>
+                    <div style={{ fontSize: '13px', color: '#475569', display: 'flex', gap: 10 }}><span>•</span> <span>Use residual heatmap trends for exception reporting.</span></div>
                   </div>
-                  <button style={{ marginTop: '20px', width: '100%', padding: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>View Compliance Log</button>
+                  <button style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'rgba(0, 61, 153, 0.05)', border: '1px solid rgba(0, 61, 153, 0.2)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#003d99', cursor: 'pointer', transition: '0.2s' }}>View Compliance Log</button>
                 </div>
               </div>
             </div>

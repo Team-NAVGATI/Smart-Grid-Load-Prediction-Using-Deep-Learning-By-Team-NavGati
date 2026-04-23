@@ -4,6 +4,35 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import LoadChart from "@/components/charts/LoadChart";
 import { usePredictiveEngine } from "@/lib/predictiveEngine";
+import { 
+  Zap, 
+  Cloud, 
+  BarChart3, 
+  Database, 
+  Construction, 
+  CheckCircle2, 
+  Check, 
+  Hourglass, 
+  Calendar,
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
+  Cpu,
+  Activity,
+  ArrowDown,
+  DownloadCloud,
+  FileSearch,
+  Filter,
+  Server,
+  Eye,
+  Settings,
+  Code2,
+  Box,
+  Layers,
+  LineChart,
+  HardDrive,
+  Target
+} from "lucide-react";
 
 const HeroCanvas = dynamic(() => import("@/components/three/HeroCanvas"), {
   ssr: false,
@@ -219,12 +248,12 @@ export default function LandingPage() {
             <Link
               href="/login"
               className="gc-btn gc-btn-primary"
-              style={{ fontSize: 15, padding: "13px 28px" }}
+              style={{ fontSize: 15, padding: "13px 28px", display: "flex", alignItems: "center", gap: 8 }}
             >
-              See Live Demo →
+              See Live Demo <ArrowRight size={16} />
             </Link>
-            <a href="#how-it-works" className="gc-btn gc-btn-ghost" style={{ fontSize: 14 }}>
-              How it works ↓
+            <a href="#how-it-works" className="gc-btn gc-btn-ghost" style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+              How it works <ArrowDown size={16} />
             </a>
           </div>
 
@@ -322,7 +351,7 @@ export default function LandingPage() {
             >
               {[
                 ["4.7B+", "People on global grids"],
-                ["₹2T+", "India grid investment"],
+                ["INR 2T+", "India grid investment"],
                 ["30%", "Reserve waste reducible"],
                 ["0.716", "tCO₂/MWh India grid"],
               ].map(([v, l]) => (
@@ -518,37 +547,37 @@ export default function LandingPage() {
           >
             {[
               [
-                "⚡",
+                <Zap key="zap" size={24} />,
                 "Demand Volatility",
                 "Load swings 15–40% within minutes during peak events, outpacing manual dispatch by 3–5× the required speed.",
                 false,
               ],
               [
-                "☁️",
+                <Cloud key="cloud" size={24} />,
                 "Renewable Intermittency",
                 "Solar and wind generation can drop 80% in minutes. Without forecasting, grid operators over-provision expensive reserves.",
                 false,
               ],
               [
-                "📊",
+                <BarChart3 key="bar" size={24} />,
                 "Dispatch Inefficiency",
                 "Without accurate 15-min forecasts, operators carry 20–30% excess reserve capacity at ₹8–12/unit hidden cost.",
                 false,
               ],
               [
-                "🗄️",
+                <Database key="db" size={24} />,
                 "Data Quality Gaps",
                 "SCADA telemetry drops, sensor drift, and holiday anomalies create gaps conventional models can't bridge.",
                 false,
               ],
               [
-                "🏗️",
+                <Construction key="con" size={24} />,
                 "Infrastructure Stress",
                 "Legacy transmission infrastructure carries 110–125% rated load during heatwaves, risking catastrophic failure.",
                 false,
               ],
               [
-                "✅",
+                <CheckCircle2 key="check" size={24} />,
                 "GridCast Solves This",
                 "96-step autoregressive XGBoost + LSTM pipeline with anomaly detection and sub-3% MAPE on NRLDC data.",
                 true,
@@ -567,7 +596,7 @@ export default function LandingPage() {
                     : { padding: 24 }
                 }
               >
-                <div style={{ fontSize: 24, marginBottom: 12 }}>{icon}</div>
+                <div style={{ color: "var(--gc-cyan)", marginBottom: 16 }}>{icon}</div>
                 <div
                   style={{
                     fontWeight: 600,
@@ -635,15 +664,15 @@ export default function LandingPage() {
             />
 
             {[
-              ["SC", "Scrape", "Selenium ETL from NLDC portal every 15 min"],
-              ["EX", "Extract", "Parquet feature store with lag & calendar features"],
-              ["CL", "Clean", "Z-score anomaly detection + gap interpolation"],
-              ["ML", "Train", "XGBoost + LSTM on 2-year NRLDC data"],
-              ["API", "Serve", "Flask REST endpoint — P95 latency <1ms"],
-              ["UI", "Visualize", "Operator dashboard for grid intelligence"],
-            ].map(([code, title, desc]) => (
+              [<DownloadCloud key="sc" size={16} />, "Scrape", "Selenium ETL from NLDC portal every 15 min"],
+              [<FileSearch key="ex" size={16} />, "Extract", "Parquet feature store with lag & calendar features"],
+              [<Filter key="cl" size={16} />, "Clean", "Z-score anomaly detection + gap interpolation"],
+              [<Cpu key="ml" size={16} />, "Train", "XGBoost + LSTM on 2-year NRLDC data"],
+              [<Server key="api" size={16} />, "Serve", "Flask REST endpoint — P95 latency <1ms"],
+              [<Eye key="ui" size={16} />, "Visualize", "Operator dashboard for grid intelligence"],
+            ].map(([icon, title, desc]) => (
               <div
-                key={code}
+                key={title as string}
                 className="gc-reveal"
                 style={{
                   flex: 1,
@@ -673,7 +702,7 @@ export default function LandingPage() {
                     zIndex: 2,
                   }}
                 >
-                  {code}
+                  {icon}
                 </div>
                 <div style={{ fontWeight: 600, fontSize: 13 }}>{title}</div>
                 <div
@@ -729,7 +758,7 @@ export default function LandingPage() {
                 ["Peak Forecast", chartData ? `${Math.round(Math.max(...chartData.forecast)).toLocaleString()} MW` : "45,320 MW", "var(--gc-amber)"],
                 ["Model MAPE", metrics?.mape ? `${metrics.mape.toFixed(2)}%` : "2.4%", "var(--gc-green)"],
                 ["Last Updated", metrics?.dataEnd ? new Date(metrics.dataEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "14:30 IST", "var(--gc-text-2)"],
-                ["API Status", loading ? "● SYNCING" : chartData ? "● LIVE" : "○ OFFLINE", loading ? "var(--gc-amber)" : chartData ? "var(--gc-green)" : "var(--gc-red)"],
+                ["API Status", loading ? "SYNCING" : chartData ? "LIVE" : "OFFLINE", loading ? "var(--gc-amber)" : chartData ? "var(--gc-green)" : "var(--gc-red)"],
               ].map(([label, val, color]) => (
                 <div
                   key={label}
@@ -743,8 +772,12 @@ export default function LandingPage() {
                       marginBottom: 4,
                       textTransform: "uppercase",
                       letterSpacing: "0.1em",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6
                     }}
                   >
+                    {label === "API Status" && <Activity size={10} style={{ color }} />}
                     {label}
                   </div>
                   <div
@@ -826,7 +859,7 @@ export default function LandingPage() {
                       borderRadius: 2,
                     }}
                   />
-                  ±5% CI
+                  +/- 5% CI
                 </span>
               </div>
             </div>
@@ -863,16 +896,17 @@ export default function LandingPage() {
             }}
           >
             {[
-              ["-30%", "Reserve capacity waste"],
-              ["<3%", "24hr MAPE target"],
-              ["96×", "Decisions per day"],
-              ["<1ms", "API inference latency"],
-            ].map(([val, label]) => (
+              ["-30%", "Reserve capacity waste", <TrendingDown key="td" size={20} />],
+              ["<3%", "24hr MAPE target", <Target key="tg" size={20} />],
+              ["96×", "Decisions per day", <Zap key="zp" size={20} />],
+              ["<1ms", "API inference latency", <Activity key="ac" size={20} />],
+            ].map(([val, label, icon]) => (
               <div
-                key={label}
+                key={label as string}
                 className="gc-card gc-reveal"
                 style={{ textAlign: "center", padding: "28px 16px" }}
               >
+                <div style={{ color: "var(--gc-cyan)", marginBottom: 12, display: "flex", justifyContent: "center" }}>{icon}</div>
                 <div
                   style={{
                     fontSize: 32,
@@ -910,14 +944,14 @@ export default function LandingPage() {
               }}
             />
             {[
-              ["✓", "Core ML Pipeline", "var(--gc-green)"],
-              ["✓", "Operator Dashboard", "var(--gc-green)"],
-              ["⏳", "Weather Features", "var(--gc-amber)"],
-              ["📅", "Multi-Region", "var(--gc-muted)"],
-              ["📅", "LSTM Fine-tune", "var(--gc-muted)"],
+              [<Check key="c1" size={14} />, "Core ML Pipeline", "var(--gc-green)"],
+              [<Check key="c2" size={14} />, "Operator Dashboard", "var(--gc-green)"],
+              [<Hourglass key="h1" size={14} />, "Weather Features", "var(--gc-amber)"],
+              [<Calendar key="cal1" size={14} />, "Multi-Region", "var(--gc-muted)"],
+              [<Calendar key="cal2" size={14} />, "LSTM Fine-tune", "var(--gc-muted)"],
             ].map(([icon, title, color]) => (
               <div
-                key={title}
+                key={title as string}
                 className="gc-reveal"
                 style={{
                   flex: 1,
@@ -932,7 +966,7 @@ export default function LandingPage() {
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    background: color,
+                    background: color as string,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -948,7 +982,7 @@ export default function LandingPage() {
                 <div
                   style={{
                     fontSize: 12,
-                    color,
+                    color: color as string,
                     textAlign: "center",
                     fontWeight: 600,
                     marginTop: 4,
@@ -995,47 +1029,52 @@ export default function LandingPage() {
                 "XGBoost",
                 "Gradient-boosted forecasting with SHAP explainability. 96-step autoregressive rollout.",
                 "var(--gc-amber)",
+                <TrendingUp key="xgb" size={18} />
               ],
               [
                 "Pandas / Parquet",
                 "Feature store with lag, rolling stats, and calendar features. Sub-100ms load time.",
                 "var(--gc-cyan)",
+                <HardDrive key="pd" size={18} />
               ],
               [
                 "Flask REST API",
                 "P95 latency <1ms. Joblib model serialization. Docker-ready deployment.",
                 "var(--gc-green)",
+                <Server key="flask" size={18} />
               ],
               [
                 "Selenium ETL",
                 "Automated NLDC scraping every 15 minutes. Handles auth, retry logic and pagination.",
                 "var(--gc-violet)",
+                <Code2 key="sel" size={18} />
               ],
               [
                 "React / Next.js",
                 "Pure SVG + Three.js visualizations. Operator dashboard with real-time data binding.",
                 "var(--gc-cyan)",
+                <Layers key="react" size={18} />
               ],
               [
                 "LSTM (Planned)",
                 "PyTorch sequence model for long-range patterns. Captures weekly seasonality across 96+ steps.",
                 "var(--gc-amber)",
+                <Cpu key="lstm" size={18} />
               ],
-            ].map(([title, desc, color]) => (
+            ].map(([title, desc, color, icon]) => (
               <div
-                key={title}
+                key={title as string}
                 className="gc-card gc-reveal"
                 style={{ padding: 22 }}
               >
                 <div
                   style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: color,
+                    color: color as string,
                     marginBottom: 12,
                   }}
-                />
+                >
+                  {icon}
+                </div>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>{title}</div>
                 <div
                   style={{
@@ -1091,18 +1130,18 @@ export default function LandingPage() {
           <Link
             href="/login"
             className="gc-btn gc-btn-primary"
-            style={{ fontSize: 15, padding: "14px 36px" }}
+            style={{ fontSize: 15, padding: "14px 36px", display: "flex", alignItems: "center", gap: 10 }}
           >
-            Request a Demo →
+            Request a Demo <ArrowRight size={18} />
           </Link>
           <a
             href="https://github.com/Team-NAVGATI/GridCast"
             className="gc-btn gc-btn-ghost"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ fontSize: 15, padding: "14px 36px" }}
+            style={{ fontSize: 15, padding: "14px 36px", display: "flex", alignItems: "center", gap: 10 }}
           >
-            View on GitHub ↗
+            View on GitHub <TrendingUp size={18} />
           </a>
         </div>
 
@@ -1117,7 +1156,7 @@ export default function LandingPage() {
             fontFamily: "var(--gc-font-mono)",
           }}
         >
-          {["GridCast v2.1", "MIT License", "© 2025 Team NavGati", "Built on NRLDC Open Data"].map(
+          {["GridCast v2.1", "MIT License", "(c) 2025 Team NavGati", "Built on NRLDC Open Data"].map(
             (t) => <span key={t}>{t}</span>
           )}
         </div>

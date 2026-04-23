@@ -92,12 +92,18 @@ export function ForecastChart({ data, model, loading }: ForecastChartProps) {
         type: 'datetime' as const,
         labels: {
           datetimeUTC: false,
-          format: 'HH:mm',
           style: {
             fontSize: '11px',
             colors: '#94a3b8',
           },
+          datetimeFormatter: {
+            year: 'yyyy',
+            month: "MMM 'yy",
+            day: 'dd MMM',
+            hour: 'HH:mm',
+          },
         },
+        tickAmount: 8,
         axisBorder: { show: true, color: '#e2e8f0' },
         axisTicks: { show: false },
       },
@@ -167,12 +173,15 @@ export function ForecastChart({ data, model, loading }: ForecastChartProps) {
   }
 
   return (
-    <div className="bg-white border border-[#e2e8f0] rounded-lg p-5 shadow-sm">
-      <div className="mb-5 px-1">
-        <h3 className="text-14px font-bold text-[#003d99] tracking-tight">
-          Forecast: {data.horizon} Ahead
-        </h3>
-        <p className="text-11px text-[#94a3b8] font-medium mt-1">
+    <div className="bg-white border border-[#e2e8f0] rounded-xl p-6 shadow-sm">
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-1.5 h-6 bg-[#003d99] rounded-full" />
+          <h3 className="text-16px font-extrabold text-[#003d99] tracking-tight uppercase ml-2">
+            Forecast: {data.horizon} Ahead
+          </h3>
+        </div>
+        <p className="text-11px text-slate-400 font-bold uppercase tracking-wider ml-[22px]">
           Engine Sync: {new Date(data.generated_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>

@@ -10,6 +10,12 @@ import {
   INDIA_GRID_EMISSION_FACTOR,
   INR_PER_KWH,
 } from "@/lib/constants";
+import { 
+  ArrowLeft, 
+  ArrowRight, 
+  Check, 
+  Zap 
+} from "lucide-react";
 
 type FormData = {
   companyName: string;
@@ -168,7 +174,7 @@ export default function OnboardingPage() {
                     transition: "all 0.3s",
                   }}
                 >
-                  {done ? "✓" : i + 1}
+                  {done ? <Check size={16} /> : i + 1}
                 </div>
                 <div
                   style={{
@@ -272,7 +278,7 @@ export default function OnboardingPage() {
                       color: "var(--gc-text-2)",
                     }}
                   >
-                    ⚡ Typical base load for{" "}
+                    <Zap size={14} className="text-cyan-400" /> Typical base load for{" "}
                     <strong style={{ color: "var(--gc-text)" }}>{industryDef.label}</strong>:{" "}
                     <span
                       style={{
@@ -667,7 +673,7 @@ export default function OnboardingPage() {
               }
               className="gc-btn gc-btn-dim"
             >
-              ← Back
+              <ArrowLeft size={16} /> Back
             </button>
             <button
               onClick={() =>
@@ -676,7 +682,7 @@ export default function OnboardingPage() {
               className="gc-btn gc-btn-primary"
               style={step === 3 ? { background: "var(--gc-green)" } : {}}
             >
-              {step === 3 ? "Launch My Dashboard →" : "Continue →"}
+              {step === 3 ? "Launch My Dashboard" : "Continue"} <ArrowRight size={16} />
             </button>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Settings, Building2, ArrowLeft, ShieldCheck, ArrowRight, Terminal, Mail } from "lucide-react";
 
 type LoginMode = null | "admin" | "company";
 
@@ -121,9 +122,9 @@ export default function LoginPage() {
             </p>
             <div style={{ display: "flex", gap: 14, marginBottom: 8 }}>
               {[
-                { id: "admin", emoji: "🔧", title: "Admin", sub: "Grid operators, NLDC engineers, system administrators" },
-                { id: "company", emoji: "🏢", title: "Company", sub: "Industrial consumers, data centers, large enterprises" },
-              ].map(({ id, emoji, title, sub }) => (
+                { id: "admin", title: "Admin", sub: "Grid operators, NLDC engineers, system administrators" },
+                { id: "company", title: "Company", sub: "Industrial consumers, data centers, large enterprises" },
+              ].map(({ id, title, sub }) => (
                 <button
                   key={id}
                   id={`mode-${id}`}
@@ -148,7 +149,9 @@ export default function LoginPage() {
                     (e.currentTarget as HTMLElement).style.background = "transparent";
                   }}
                 >
-                  <div style={{ fontSize: 30, marginBottom: 10 }}>{emoji}</div>
+                  <div style={{ color: "var(--gc-cyan)", marginBottom: 14, display: "flex", justifyContent: "center" }}>
+                    {id === "admin" ? <ShieldCheck size={32} /> : <Building2 size={32} />}
+                  </div>
                   <div style={{ fontWeight: 600, color: "var(--gc-text)", marginBottom: 6, fontSize: 15 }}>{title}</div>
                   <div style={{ fontSize: 12, color: "var(--gc-muted)", lineHeight: 1.5 }}>{sub}</div>
                 </button>
@@ -173,11 +176,13 @@ export default function LoginPage() {
                 display: "flex", alignItems: "center", gap: 6,
               }}
             >
-              ← Back
+              <ArrowLeft size={14} /> Back
             </button>
 
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-              <span style={{ fontSize: 20 }}>{mode === "admin" ? "🔧" : "🏢"}</span>
+              <span style={{ color: "var(--gc-cyan)" }}>
+                {mode === "admin" ? <ShieldCheck size={24} /> : <Building2 size={24} />}
+              </span>
               <div>
                 <div style={{ fontWeight: 600, color: "var(--gc-text)", fontSize: 15 }}>
                   {mode === "admin" ? "Admin Login" : "Company Login"}
@@ -220,7 +225,11 @@ export default function LoginPage() {
               style={{ width: "100%", justifyContent: "center", fontSize: 14, padding: "13px", opacity: loading ? 0.75 : 1 }}
               disabled={loading}
             >
-              {loading ? "Authenticating…" : mode === "admin" ? "Sign In as Admin →" : "Sign In as Company →"}
+              {loading ? "Authenticating…" : (
+                <>
+                  {mode === "admin" ? "Sign In as Admin" : "Sign In as Company"} <ArrowRight size={16} />
+                </>
+              )}
             </button>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0", color: "var(--gc-ghost)", fontSize: 12 }}>
@@ -230,7 +239,10 @@ export default function LoginPage() {
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
-              {[{ icon: "G", label: "Google" }, { icon: "GH", label: "GitHub" }].map(({ icon, label }) => (
+              {[
+                { icon: <Mail size={16} />, label: "Google" },
+                { icon: <Terminal size={16} />, label: "GitHub" }
+              ].map(({ icon, label }) => (
                 <button
                   key={label}
                   style={{
@@ -242,7 +254,7 @@ export default function LoginPage() {
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(6,182,212,0.4)")}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(6,182,212,0.15)")}
                 >
-                  <span style={{ fontWeight: 700 }}>{icon}</span> {label}
+                  {icon} {label}
                 </button>
               ))}
             </div>

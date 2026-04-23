@@ -4,6 +4,19 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { 
+  BarChart3, 
+  TrendingUp, 
+  Cpu, 
+  FileText, 
+  Target, 
+  Zap, 
+  Brain, 
+  Plus, 
+  Calendar, 
+  Bell,
+  ArrowLeft
+} from 'lucide-react';
 
 // Types
 import { ForecastData, ResidualData, ModelType, Horizon, MODEL_CONFIGS } from '@/types';
@@ -82,10 +95,10 @@ export default function AdminDashboard() {
 
   // Sidebar Items
   const navItems = [
-    { id: 'forecast', label: 'Forecast', icon: '📊' },
-    { id: 'analysis', label: 'Analysis', icon: '📈' },
-    { id: 'models', label: 'Models', icon: '🧠' },
-    { id: 'reports', label: 'Reports', icon: '📄' },
+    { id: 'forecast', label: 'Forecast', icon: <BarChart3 size={18} /> },
+    { id: 'analysis', label: 'Analysis', icon: <TrendingUp size={18} /> },
+    { id: 'models', label: 'Models', icon: <Brain size={18} /> },
+    { id: 'reports', label: 'Reports', icon: <FileText size={18} /> },
   ];
 
   if (error) {
@@ -159,7 +172,7 @@ export default function AdminDashboard() {
             onClick={() => router.push('/login')}
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm font-medium hover:bg-white/10 hover:text-white transition-all"
           >
-            <span>←</span> Sign Out
+            <ArrowLeft size={16} /> Sign Out
           </button>
         </div>
       </aside>
@@ -236,28 +249,28 @@ export default function AdminDashboard() {
                   value={loading ? '...' : `${currentData?.horizon_metrics[activeHorizon]?.mape?.toFixed(2) ?? '--'}%`}
                   status={loading ? 'neutral' : (currentData?.horizon_metrics[activeHorizon]?.mape ?? 10) < 3 ? 'good' : 'warn'}
                   subtext="Backtest Avg Error"
-                  icon={<span className="text-2xl">🎯</span>}
+                  icon={<Target className="text-cyan-400" size={24} />}
                   modelColor={config.color}
                 />
                 <KPICard 
                   label="Predicted Peak"
                   value={loading ? '...' : `${Math.max(...(currentData?.forecast.map(p => p.load_mw) ?? [0])).toLocaleString()} MW`}
                   subtext="24h Maximum"
-                  icon={<span className="text-2xl">📈</span>}
+                  icon={<TrendingUp className="text-amber-400" size={24} />}
                   modelColor={config.color}
                 />
                 <KPICard 
                   label="Model Latency"
                   value="1.2s"
                   subtext="Inference Roundtrip"
-                  icon={<span className="text-2xl">⚡</span>}
+                  icon={<Zap className="text-cyan-400" size={24} />}
                   modelColor={config.color}
                 />
                 <KPICard 
                   label="Last Trained"
                   value={loading ? '...' : currentData?.trained_at.split(' ')[0] ?? '--'}
                   subtext="Season-aware refresh"
-                  icon={<span className="text-2xl">🧠</span>}
+                  icon={<Brain className="text-cyan-400" size={24} />}
                   modelColor={config.color}
                   highlighted
                 />
@@ -291,42 +304,19 @@ export default function AdminDashboard() {
 
                 <div className="space-y-6">
                   {/* Model Comparison - CRITICAL: Shows both errors */}
-                  <div className="bg-black/30 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
+                  <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-white/5 shadow-2xl">
                     <ModelComparison 
                       xgboostData={xgboostData} 
                       lstmData={lstmData} 
                       horizon={activeHorizon}
-                      loading={loading} 
+                      loading={loading}
                     />
-                  </div>
-
-                  {/* Operational Alerts */}
-                  <div className="bg-black/30 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                      <span>🔔</span> Engine Alerts
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="flex gap-3 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5" />
-                        <div>
-                          <p className="text-sm font-bold text-cyan-400">Forecast Synced</p>
-                          <p className="text-[11px] text-white/50">Successfully fetched {activeHorizon} matrix for {activeModel}.</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5" />
-                        <div>
-                          <p className="text-sm font-bold text-amber-400">Peak Load Warning</p>
-                          <p className="text-[11px] text-white/50">Approaching seasonal peak in next 4 hours. MAPE variance may increase.</p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Heatmap Section */}
-              <div className="mt-8">
+              <div className="mt-4">
                 <div className="bg-black/30 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
                    <ResidualHeatmap data={residualData} loading={loading} />
                 </div>
@@ -383,7 +373,7 @@ export default function AdminDashboard() {
                      <div key={m} className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:border-white/20 transition-all group">
                        <div className="flex items-center gap-4 mb-4">
                          <div className="p-3 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform">
-                           <span className="text-2xl">{m === 'xgboost' ? '🌳' : '🧠'}</span>
+                            {m === 'xgboost' ? <BarChart3 size={24} /> : <Brain size={24} />}
                          </div>
                          <div>
                            <h4 className="text-xl font-bold">{cfg.name}</h4>
@@ -405,7 +395,7 @@ export default function AdminDashboard() {
                    );
                  })}
                  <div className="p-6 bg-white/5 rounded-3xl border border-white/5 border-dashed flex flex-col items-center justify-center text-center opacity-50">
-                    <span className="text-2xl mb-2">➕</span>
+                    <Plus size={24} className="text-white/20 mb-2" />
                     <h4 className="text-sm font-bold">Add Ensemble Layer</h4>
                     <p className="text-[10px] text-white/40 mt-1">Coming Q3 2026</p>
                  </div>
@@ -417,9 +407,7 @@ export default function AdminDashboard() {
             <div className="animate-in fade-in duration-500">
                <h1 className="text-4xl font-bold tracking-tight mb-8">System Reports</h1>
                <div className="bg-white/5 rounded-3xl border border-white/10 p-8 text-center">
-                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                   📅
-                 </div>
+                 <Calendar size={32} className="text-cyan-400/50 mx-auto mb-4" />
                  <h3 className="text-xl font-bold mb-2">Operational Digest</h3>
                  <p className="text-white/50 text-sm max-w-md mx-auto mb-6">
                    Automated summaries of grid stability and forecast accuracy for stakeholder review.
